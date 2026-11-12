@@ -159,7 +159,7 @@
     table { border-collapse: collapse; width: 100%; font-family: var(--font-sans); font-size: 0.88rem; }
     th, td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
     th:first-child, td:first-child { text-align: left; }
-    th { background: var(--code-bg); color: var(--primary); font-weight: 600; }
+    th { background: var(--code-bg); color: var(--primary); font-weight: 600; white-space: normal; vertical-align: bottom; }
     tr.destaque td { color: var(--accent); font-weight: 600; }
     .table-caption { font-family: var(--font-sans); font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem; }
 
@@ -225,7 +225,8 @@
         trata dois formatos de registro que convivem no mesmo arquivo, agrega 303.868 trechos em viagens, corrige os valores
         pelo IPCA e cruza as viagens com a base de empregados e o organograma para identificar profissão, cargo e área.
         Engenheiros são o grupo que mais viaja e mais gasta, com 67 viagens por pessoa e 26% do gasto real, seguidos de
-        economistas e administradores. O gasto é concentrado: 10% das pessoas respondem por 57% do total (Gini = 0,75).
+        economistas e administradores. Entre os cargos, a diferença está mais na frequência do que no preço: até 2019, uma viagem de
+        diretor equivalia a 1,18 viagem de nível superior, mas cada diretor gastou 2,3 vezes mais. O gasto é concentrado: 10% das pessoas respondem por 57% do total (Gini = 0,75).
         A pandemia reduziu as viagens em 82% em 2020 e 88% em 2021 frente a 2019, sem nenhum registro entre abril e junho de
         2020. Congressos e treinamentos foram os motivos mais afetados, enquanto as reuniões nos escritórios regionais quase
         dobraram depois da crise. Em 2025 o volume ainda está 6% abaixo de 2019, mas cada viagem custa 38% mais em termos
@@ -300,7 +301,7 @@ for coluna in COLUNAS_VALOR:
 df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100               # '300' = 3 diárias</code></pre>
       <p>
         Com essa regra, passagens, diárias e acréscimos somam exatamente o valor total em 100% das viagens de 2009–2019, e a diária
-        mediana é de R$ 190 nos dois períodos, o que confirma a conversão. O segundo cuidado é a unidade de análise: valor total,
+        mediana é de R$&nbsp;190 nos dois períodos, o que confirma a conversão. O segundo cuidado é a unidade de análise: valor total,
         hospedagem e locação são da viagem e se repetem em cada trecho. Somar por linha inflaria o gasto em 144%, por isso os
         trechos são agregados por <code>codigoviagem</code> antes de qualquer soma:
       </p>
@@ -341,7 +342,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
 
       <h3 class="sub">3.1 Visão geral e concentração do gasto</h3>
       <p>
-        No período, o BNDES realizou 144.930 viagens, com gasto de R$ 421 milhões em valores reais (R$ 261 milhões nominais).
+        No período, o BNDES realizou 144.930 viagens, com gasto de R$&nbsp;421 milhões em valores reais (R$&nbsp;261 milhões nominais).
         A viagem típica é curta: dois trechos, ida e volta, e duas diárias. O valor total acompanha principalmente a passagem
         (correlação de Pearson de 0,89 nas viagens de 2020 em diante) e, em seguida, as diárias (0,73); a hospedagem quase não se
         relaciona com o total (0,06), porque vem zerada na maior parte dos registros. O custo, portanto, é puxado pelo deslocamento.
@@ -367,7 +368,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>Profissão</th><th>Viagens</th><th>Pessoas que viajaram</th><th>Viagens por pessoa</th><th>Gasto real (R$ mi)</th><th>% do gasto</th></tr>
+            <tr><th>Profissão</th><th>Viagens</th><th>Pessoas que viajaram</th><th>Viagens por pessoa</th><th>Gasto real (R$&nbsp;mi)</th><th>% do gasto</th></tr>
           </thead>
           <tbody>
             <tr class="destaque"><td>Engenheiro</td><td>28.779</td><td>430</td><td>66,9</td><td>81,4</td><td>26,0%</td></tr>
@@ -387,61 +388,104 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
 
       <p>
         <strong>Por cargo.</strong> Na base de viagens, o cargo descreve o nível na estrutura. Até 2019, profissionais de
-        <em>Nível Superior</em> fizeram 58,3 mil viagens (R$ 146 milhões) e <em>Gerentes Executivos</em>, 39,5 mil (R$ 100 milhões).
-        A partir de 2020, com a nova codificação, o maior grupo é DAS-1011 (assessoramento), com 14,1 mil viagens e R$ 55 milhões
+        <em>Nível Superior</em> fizeram 58,3 mil viagens (R$&nbsp;146 milhões) e <em>Gerentes Executivos</em>, 39,5 mil (R$&nbsp;100 milhões).
+        A partir de 2020, com a nova codificação, o maior grupo é DAS-1011 (assessoramento), com 14,1 mil viagens e R$&nbsp;55 milhões
         (Figura 3). Nos dois períodos, os cargos de base respondem pela maior parte do volume, e os de direção, pelos maiores custos por viagem.
       </p>
       <figure>
         <a href="assets/fig_cargo.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_cargo.png" alt="Dois painéis de barras com viagens e gasto por cargo em 2009–2019 e em 2020 em diante" loading="lazy"></a>
         <figcaption>Figura 3: Viagens e gasto real por cargo, separados por formato de registro.</figcaption>
       </figure>
+      <p>
+        O total por cargo, porém, reflete sobretudo o tamanho de cada grupo: 2.189 pessoas viajaram como Nível Superior até 2019,
+        contra 41 diretores. Para comparar os cargos de igual para igual, a Tabela 2 e a Figura 4 calculam o custo de <strong>uma
+        viagem</strong> e o gasto de <strong>uma pessoa</strong>, e expressam cada cargo em múltiplos de um cargo de referência
+        (Nível Superior até 2019; DAS-1011 a partir de 2020). Até 2019, uma viagem de Diretor custava em média R$&nbsp;2.977,
+        o equivalente a 1,18 viagem de Nível Superior (R$&nbsp;2.519): a diferença por viagem é pequena. O que separa os cargos é a
+        frequência. Cada diretor viajou 52 vezes no período, contra 26,5 de um profissional de Nível Superior, e por isso gastou
+        R$&nbsp;155 mil, 2,3 vezes mais. O Diretor Presidente chega a 99,6 viagens e R$&nbsp;332 mil por pessoa, cinco vezes a referência.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Cargo</th><th>Custo médio de 1 viagem</th><th>= viagens da referência</th><th>Viagens por pessoa</th><th>Gasto por pessoa</th><th>= pessoas da referência</th></tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="6"><strong>2009–2019</strong> (referência: Nível Superior)</td></tr>
+            <tr><td>Diretor Presidente</td><td>R$&nbsp;3.333</td><td>1,32</td><td>99,6</td><td>R$&nbsp;332 mil</td><td>5,0</td></tr>
+            <tr><td>Diretor</td><td>R$&nbsp;2.977</td><td>1,18</td><td>52,0</td><td>R$&nbsp;155 mil</td><td>2,3</td></tr>
+            <tr><td>Superintendente Executivo</td><td>R$&nbsp;2.617</td><td>1,04</td><td>46,3</td><td>R$&nbsp;121 mil</td><td>1,8</td></tr>
+            <tr><td>Gerente Executivo</td><td>R$&nbsp;2.536</td><td>1,01</td><td>38,3</td><td>R$&nbsp;97 mil</td><td>1,5</td></tr>
+            <tr class="destaque"><td>Nível Superior</td><td>R$&nbsp;2.519</td><td>1,00</td><td>26,5</td><td>R$&nbsp;67 mil</td><td>1,0</td></tr>
+            <tr><td colspan="6"><strong>2020 em diante</strong> (referência: DAS-1011)</td></tr>
+            <tr><td>DAS-1016 (Cargo Superior)</td><td>R$&nbsp;7.767</td><td>2,00</td><td>62,6</td><td>R$&nbsp;487 mil</td><td>20,8</td></tr>
+            <tr><td>DAS-1015 (Direção)</td><td>R$&nbsp;5.847</td><td>1,50</td><td>38,1</td><td>R$&nbsp;223 mil</td><td>9,5</td></tr>
+            <tr><td>DAS-1014 (Coordenação)</td><td>R$&nbsp;4.600</td><td>1,18</td><td>20,2</td><td>R$&nbsp;93 mil</td><td>4,0</td></tr>
+            <tr><td>DAS-1013 (Coordenação)</td><td>R$&nbsp;4.040</td><td>1,04</td><td>7,7</td><td>R$&nbsp;31 mil</td><td>1,3</td></tr>
+            <tr class="destaque"><td>DAS-1011 (Assessoramento)</td><td>R$&nbsp;3.890</td><td>1,00</td><td>6,0</td><td>R$&nbsp;23 mil</td><td>1,0</td></tr>
+          </tbody>
+        </table>
+        <p class="table-caption">Tabela 2: Custo de uma viagem e gasto de uma pessoa por cargo, em valores reais de out/2026 (cargos com 100 ou mais viagens; viagens de valor zero excluídas).</p>
+      </div>
+      <figure>
+        <a href="assets/fig_cargo_por_pessoa.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_cargo_por_pessoa.png" alt="Seis painéis de barras: custo de uma viagem, viagens por pessoa e gasto por pessoa para cada cargo, em 2009–2019 e em 2020 em diante, com rótulos em múltiplos do cargo de referência" loading="lazy"></a>
+        <figcaption>Figura 4: Custo de uma viagem, viagens por pessoa e gasto de uma pessoa, por cargo; em laranja, o cargo de referência.</figcaption>
+      </figure>
+      <p>
+        A partir de 2020 a distância aumenta. Uma viagem de DAS-1016 custa em média o equivalente a duas viagens de DAS-1011, e cada
+        pessoa nesse cargo gastou 20,8 vezes mais, combinando viagens mais caras com uma frequência dez vezes maior (62,6 contra 6,0).
+        Parte da diferença por viagem vem das viagens internacionais, que só aparecem nesse período e se concentram no topo (5% das
+        viagens de DAS-1015 e DAS-1016, contra 2% de DAS-1011); como elas puxam a média para cima, pela mediana a viagem de DAS-1016
+        equivale a 1,47 viagem de DAS-1011. Os cargos de natureza especial (CNE-0001) têm valores ainda maiores, mas reúnem apenas
+        duas pessoas e por isso ficam fora da tabela. Uma pessoa que mudou de cargo é contada em cada cargo que ocupou.
+      </p>
 
       <p>
         <strong>Por área.</strong> O organograma permite identificar a área apenas dos 34 dirigentes atuais, cujas viagens são 3,7%
         do total; o resultado descreve a liderança, não o banco inteiro. Entre eles, a superintendência ASC é a que mais viaja
-        (475 viagens) e mais gasta (R$ 1,9 milhão), seguida de ADIG e AI (Figura 4). Superintendentes viajam mais por pessoa
-        (164 viagens, contra 140 dos diretores), mas a viagem mediana de um diretor custa 59% a mais: R$ 4,8 mil contra R$ 3,0 mil.
+        (475 viagens) e mais gasta (R$&nbsp;1,9 milhão), seguida de ADIG e AI (Figura 5). Superintendentes viajam mais por pessoa
+        (164 viagens, contra 140 dos diretores), mas a viagem mediana de um diretor custa 59% a mais: R$&nbsp;4,8 mil contra R$&nbsp;3,0 mil.
       </p>
       <figure>
         <a href="assets/fig_area.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_area.png" alt="Barras horizontais de viagens e gasto real por área da liderança, com superintendências em azul e diretorias em laranja" loading="lazy"></a>
-        <figcaption>Figura 4: Viagens e gasto real dos dirigentes atuais, por área (sigla do organograma).</figcaption>
+        <figcaption>Figura 5: Viagens e gasto real dos dirigentes atuais, por área (sigla do organograma).</figcaption>
       </figure>
 
       <p>
         <strong>Por motivo.</strong> Acompanhamento de projeto (20% das viagens) e reuniões em órgãos governamentais (18%) são os
-        motivos mais frequentes; as reuniões em órgãos do governo concentram o maior gasto, R$ 80,9 milhões. Os dez motivos
+        motivos mais frequentes; as reuniões em órgãos do governo concentram o maior gasto, R$&nbsp;80,9 milhões. Os dez motivos
         principais respondem por 90% das viagens.
       </p>
 
       <h3 class="sub">3.3 RQ3: o efeito da pandemia</h3>
       <p>
-        A Figura 5 mostra a série mensal. As viagens já vinham caindo antes da pandemia, de 13,0 mil em 2011 para 7,7 mil em 2019 (−41%),
+        A Figura 6 mostra a série mensal. As viagens já vinham caindo antes da pandemia, de 13,0 mil em 2011 para 7,7 mil em 2019 (−41%),
         mas a ruptura de 2020 é de outra ordem: entre abril e junho de 2020 não há nenhuma viagem registrada, e o ano fecha 82% abaixo
-        de 2019. Em 2021 a queda chega a 88%, e só 229 pessoas viajaram, contra 1.540 em 2019 (Tabela 2).
+        de 2019. Em 2021 a queda chega a 88%, e só 229 pessoas viajaram, contra 1.540 em 2019 (Tabela 3).
       </p>
       <figure>
         <a href="assets/fig_serie_mensal.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_serie_mensal.png" alt="Série mensal de viagens de 2009 a 2026 com média móvel de 12 meses e faixa destacando a pandemia" loading="lazy"></a>
-        <figcaption>Figura 5: Viagens iniciadas por mês e média móvel de 12 meses; faixa laranja = pandemia (mar/2020 a dez/2021).</figcaption>
+        <figcaption>Figura 6: Viagens iniciadas por mês e média móvel de 12 meses; faixa laranja = pandemia (mar/2020 a dez/2021).</figcaption>
       </figure>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>Ano</th><th>Viagens</th><th>vs. 2019</th><th>Pessoas que viajaram</th><th>Gasto real (R$ mi)</th><th>Custo mediano real</th></tr>
+            <tr><th>Ano</th><th>Viagens</th><th>vs. 2019</th><th>Pessoas que viajaram</th><th>Gasto real (R$&nbsp;mi)</th><th>Custo mediano real</th></tr>
           </thead>
           <tbody>
-            <tr><td>2019</td><td>7.671</td><td>—</td><td>1.540</td><td>20,6</td><td>R$ 2.494</td></tr>
-            <tr class="destaque"><td>2020</td><td>1.381</td><td>−82,0%</td><td>607</td><td>4,7</td><td>R$ 2.680</td></tr>
-            <tr class="destaque"><td>2021</td><td>918</td><td>−88,0%</td><td>229</td><td>3,8</td><td>R$ 2.884</td></tr>
-            <tr><td>2022</td><td>3.855</td><td>−49,7%</td><td>988</td><td>18,4</td><td>R$ 3.566</td></tr>
-            <tr><td>2023</td><td>5.489</td><td>−28,4%</td><td>1.314</td><td>25,4</td><td>R$ 3.725</td></tr>
-            <tr><td>2024</td><td>5.790</td><td>−24,5%</td><td>1.268</td><td>27,2</td><td>R$ 3.674</td></tr>
-            <tr><td>2025</td><td>7.204</td><td>−6,1%</td><td>1.657</td><td>30,6</td><td>R$ 3.439</td></tr>
+            <tr><td>2019</td><td>7.671</td><td>—</td><td>1.540</td><td>20,6</td><td>R$&nbsp;2.494</td></tr>
+            <tr class="destaque"><td>2020</td><td>1.381</td><td>−82,0%</td><td>607</td><td>4,7</td><td>R$&nbsp;2.680</td></tr>
+            <tr class="destaque"><td>2021</td><td>918</td><td>−88,0%</td><td>229</td><td>3,8</td><td>R$&nbsp;2.884</td></tr>
+            <tr><td>2022</td><td>3.855</td><td>−49,7%</td><td>988</td><td>18,4</td><td>R$&nbsp;3.566</td></tr>
+            <tr><td>2023</td><td>5.489</td><td>−28,4%</td><td>1.314</td><td>25,4</td><td>R$&nbsp;3.725</td></tr>
+            <tr><td>2024</td><td>5.790</td><td>−24,5%</td><td>1.268</td><td>27,2</td><td>R$&nbsp;3.674</td></tr>
+            <tr><td>2025</td><td>7.204</td><td>−6,1%</td><td>1.657</td><td>30,6</td><td>R$&nbsp;3.439</td></tr>
           </tbody>
         </table>
-        <p class="table-caption">Tabela 2: Volume, pessoas e custo das viagens antes, durante e depois da pandemia (valores reais de out/2026).</p>
+        <p class="table-caption">Tabela 3: Volume, pessoas e custo das viagens antes, durante e depois da pandemia (valores reais de out/2026).</p>
       </div>
       <p>
-        A pandemia não afetou os motivos da mesma forma (Figura 6). Congressos, feiras e seminários caíram 97%, e treinamentos, 95%:
+        A pandemia não afetou os motivos da mesma forma (Figura 7). Congressos, feiras e seminários caíram 97%, e treinamentos, 95%:
         são atividades que podem ser feitas a distância, embora os dados não registrem o formato em que ocorreram. Reuniões nos escritórios regionais foram as que menos caíram (−61%) e,
         em 2023, quase dobraram em relação a 2019 (737 contra 372). Congressos voltaram rapidamente (−8% em 2023), mas fomento (−59%),
         acompanhamento de projeto (−44%) e treinamento (−54%) seguiam bem abaixo do nível anterior, o que sugere que parte dessas
@@ -449,18 +493,18 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
       </p>
       <figure>
         <a href="assets/fig_motivos_pandemia.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_motivos_pandemia.png" alt="Gráfico de pontos comparando viagens por motivo em 2019, na média de 2020–21 e em 2023" loading="lazy"></a>
-        <figcaption>Figura 6: Viagens por motivo em 2019, na média anual de 2020–21 e em 2023 (dez maiores motivos de 2019).</figcaption>
+        <figcaption>Figura 7: Viagens por motivo em 2019, na média anual de 2020–21 e em 2023 (dez maiores motivos de 2019).</figcaption>
       </figure>
       <p>
-        O custo seguiu o caminho oposto ao do volume (Figura 7). Em valores reais, a viagem mediana passou de R$ 2.494 em 2019 para
-        R$ 3.725 em 2023 (+49%) e R$ 3.439 em 2025 (+38%), e o gasto anual de 2025 (R$ 30,6 milhões) já supera o de 2019, com menos
+        O custo seguiu o caminho oposto ao do volume (Figura 8). Em valores reais, a viagem mediana passou de R$&nbsp;2.494 em 2019 para
+        R$&nbsp;3.725 em 2023 (+49%) e R$&nbsp;3.439 em 2025 (+38%), e o gasto anual de 2025 (R$&nbsp;30,6 milhões) já supera o de 2019, com menos
         viagens. A correção pelo IPCA descarta a inflação como explicação, mas esse salto coincide com a mudança no formato de registro,
         em que o total passa a incluir itens não detalhados nas colunas de componentes; por isso não é possível separar com segurança
         quanto do aumento é encarecimento real e quanto é mudança contábil.
       </p>
       <figure>
         <a href="assets/fig_gasto_anual.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_gasto_anual.png" alt="Barras de gasto real anual de 2009 a 2025, com 2020 e 2021 em laranja, e linha do custo mediano por viagem" loading="lazy"></a>
-        <figcaption>Figura 7: Gasto real anual (barras) e custo mediano real por viagem (linha), 2009–2025.</figcaption>
+        <figcaption>Figura 8: Gasto real anual (barras) e custo mediano real por viagem (linha), 2009–2025.</figcaption>
       </figure>
     </section>
 
@@ -469,8 +513,10 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
       <h2>4. Conclusão</h2>
       <p>
         Engenheiros, economistas e administradores, as carreiras ligadas à análise e ao acompanhamento de projetos, são os grupos que
-        mais viajam e mais gastam no BNDES, e o gasto se concentra em uma parcela pequena das pessoas. Entre os dirigentes, superintendentes
-        viajam mais, enquanto diretores fazem viagens mais caras. A pandemia interrompeu as viagens por três meses e reduziu o volume
+        mais viajam e mais gastam no BNDES, e o gasto se concentra em uma parcela pequena das pessoas. Por cargo, o que diferencia o gasto é sobretudo a
+        frequência: uma viagem de diretor custa pouco mais que uma de nível superior, mas cada diretor viaja duas vezes mais e gasta
+        2,3 vezes mais; depois de 2020, os cargos do topo combinam viagens mais caras e muito mais frequentes. Entre os dirigentes,
+        superintendentes viajam mais, enquanto diretores fazem viagens mais caras. A pandemia interrompeu as viagens por três meses e reduziu o volume
         em quase 90% em 2021; cinco anos depois, o banco ainda viaja menos do que em 2019, mas cada viagem custa mais em termos reais.
         Os motivos que exigem presença física, como reuniões regionais e congressos, recuperaram-se primeiro; treinamento e fomento,
         não.

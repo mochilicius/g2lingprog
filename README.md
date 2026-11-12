@@ -18,6 +18,7 @@
 Analisamos 144.930 viagens a serviço de 5.480 empregados e dirigentes do BNDES entre 2009 e 2026, a partir dos dados abertos do banco, cruzados com a base de empregados e o organograma. Os valores foram corrigidos pelo IPCA.
 
 - **Quem mais viaja e gasta (RQ1 e RQ2):** engenheiros lideram nas duas medidas, com 28,8 mil viagens (67 por pessoa) e 26% do gasto real, seguidos de economistas e administradores. Entre as áreas da liderança, a superintendência ASC é a que mais viaja e mais gasta; a viagem mediana de um diretor custa 59% mais que a de um superintendente (R$ 4,8 mil contra R$ 3,0 mil).
+- **Por cargo, pesa mais a frequência que o preço:** até 2019, uma viagem de diretor custava em média R$ 2.977, o equivalente a 1,18 viagem de Nível Superior (R$ 2.519), mas cada diretor fez 52 viagens contra 26,5 e gastou 2,3 vezes mais. A partir de 2020, uma viagem de DAS-1016 equivale a duas de DAS-1011, e cada pessoa nesse cargo gasta 20,8 vezes mais.
 - **O gasto é concentrado:** os 10% que mais gastam respondem por 57% do total (Gini = 0,75).
 - **Pandemia (RQ3):** as viagens caíram 82% em 2020 e 88% em 2021 frente a 2019, sem nenhuma viagem entre abril e junho de 2020. Congressos (−97%) e treinamentos (−95%) foram os motivos mais afetados; já as reuniões nos escritórios regionais quase dobraram em 2023 frente a 2019. Em 2025 o volume ainda está 6% abaixo de 2019, mas a viagem mediana custa 38% mais em termos reais (49% em 2023).
 
