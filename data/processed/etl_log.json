@@ -1,0 +1,30 @@
+{
+  "trechos_lidos": 303868,
+  "trechos_por_formato": {
+    "2009-2019": 238714,
+    "2020+": 65154
+  },
+  "nulos_apos_conversao": {
+    "valorpassagem": 1,
+    "datachegadadestino": 2916
+  },
+  "motivos_distintos": {
+    "bruto": 215,
+    "normalizado": 214,
+    "principal": 94
+  },
+  "trechos_com_motivo_composto": 3466,
+  "viagens": 144930,
+  "viagens_total_divergente_entre_trechos": 152,
+  "viagens_valor_total_zero": 780,
+  "homonimos_empregados": 4,
+  "cobertura_profissao": 0.7581,
+  "cobertura_area_organograma": 0.0368,
+  "pessoas_distintas": 5480,
+  "ipca_mes_base": "2026-10",
+  "limite_outlier_valor": {
+    "2009-2019": 2561.86,
+    "2020+": 7767.6
+  },
+  "viagens_outlier_valor": 6219
+}

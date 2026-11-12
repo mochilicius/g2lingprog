@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Artigo acadêmico: análise das despesas de viagem do BNDES entre 2009 e 2026 por profissão, cargo, área e motivo, e o efeito da pandemia de COVID-19.">
+  <meta name="author" content="Giovanna Poggi; Juliana Neto">
+  <meta name="keywords" content="dados abertos, BNDES, despesas de viagem, COVID-19, análise exploratória de dados, princípios FAIR">
+  <title>Despesas de viagem do BNDES (2009–2026): quem viaja, quem gasta e o efeito da pandemia</title>
+
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --accent: #ea580c;
+      --text: #1f2937;
+      --text-muted: #4b5563;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --code-bg: #f1f5f9;
+      --font-serif: "Merriweather", Georgia, serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      background-color: var(--bg);
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--surface);
+      padding: 3.5rem 4rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    header { border-bottom: 2px solid var(--border); padding-bottom: 2rem; margin-bottom: 2.5rem; }
+
+    h1.paper-title {
+      font-family: var(--font-sans);
+      font-size: 2.1rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--primary);
+      margin-bottom: 1.2rem;
+    }
+
+    .meta-block { font-family: var(--font-sans); font-size: 0.95rem; color: var(--text-muted); margin-bottom: 0.8rem; }
+    .authors { font-weight: 600; color: var(--text); }
+    .affiliations { font-style: italic; }
+
+    .badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+    .badge {
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      border-radius: 4px;
+      overflow: hidden;
+      display: inline-flex;
+      border: 1px solid var(--border);
+    }
+    .badge span { padding: 0.15rem 0.5rem; }
+    .badge span:first-child { background: #475569; color: #fff; }
+    .badge span:last-child { background: var(--code-bg); color: var(--primary); font-weight: 600; }
+
+    .repo-badge {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-decoration: none;
+      color: var(--primary);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+    .repo-badge:hover { background: #e2e8f0; }
+
+    .abstract-box {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      border-left: 4px solid var(--primary-light);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+      border-radius: 0 4px 4px 0;
+    }
+    .abstract-box h3 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+    .abstract-box p { font-size: 0.95rem; line-height: 1.6; }
+    .keywords { margin-top: 0.8rem; font-size: 0.9rem; color: var(--text-muted); }
+
+    nav.toc {
+      font-family: var(--font-sans);
+      background: #fdfefe;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.2rem 1.8rem;
+      margin-bottom: 2.5rem;
+    }
+    nav.toc h4 { font-size: 1rem; color: var(--primary); margin-bottom: 0.6rem; }
+    nav.toc ol { padding-left: 1.2rem; }
+    nav.toc li { margin: 0.3rem 0; }
+    nav.toc a { color: var(--text-muted); text-decoration: none; font-size: 0.92rem; }
+    nav.toc a:hover { color: var(--primary-light); text-decoration: underline; }
+
+    section { margin-bottom: 2.5rem; }
+
+    h2 {
+      font-family: var(--font-sans);
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--primary);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.4rem;
+      margin-bottom: 1.2rem;
+    }
+    h3.sub { font-family: var(--font-sans); font-size: 1.12rem; color: var(--text); margin: 1.8rem 0 0.6rem; }
+
+    p { margin-bottom: 1.2rem; text-align: justify; hyphens: auto; }
+    ul.rq, ul.plain { margin: 0 0 1.2rem 1.4rem; }
+    ul.rq li, ul.plain li { margin-bottom: 0.5rem; }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86em; background: var(--code-bg); padding: 0.1rem 0.3rem; border-radius: 3px; }
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 1.1rem 1.3rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin-bottom: 1.4rem;
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+    pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+    figure { margin: 2rem 0; }
+    figure img { width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
+    figure.narrow img { max-width: 520px; display: block; margin: 0 auto; }
+    figcaption { font-family: var(--font-sans); font-size: 0.85rem; color: var(--text-muted); margin-top: 0.6rem; text-align: center; }
+
+    .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+    table { border-collapse: collapse; width: 100%; font-family: var(--font-sans); font-size: 0.88rem; }
+    th, td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; }
+    th { background: var(--code-bg); color: var(--primary); font-weight: 600; }
+    tr.destaque td { color: var(--accent); font-weight: 600; }
+    .table-caption { font-family: var(--font-sans); font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem; }
+
+    .fair-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 6px;
+      padding: 1.5rem 1.8rem;
+      font-family: var(--font-sans);
+    }
+    .fair-box h3 { font-size: 1.1rem; color: #166534; margin-bottom: 0.8rem; }
+    .fair-box ul { list-style: none; }
+    .fair-box li { margin-bottom: 0.6rem; font-size: 0.93rem; }
+
+    .references ol { padding-left: 1.4rem; font-size: 0.92rem; }
+    .references li { margin-bottom: 0.7rem; text-align: left; }
+
+    footer { font-family: var(--font-sans); font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 2.5rem; padding-top: 1rem; }
+    a { color: var(--primary-light); }
+
+    @media (max-width: 720px) {
+      body { padding: 0.5rem; font-size: 1rem; }
+      .container { padding: 1.6rem 1.1rem; }
+      h1.paper-title { font-size: 1.55rem; }
+      p { text-align: left; }
+      nav.toc { padding: 1rem 1.2rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1 class="paper-title">Despesas de viagem do BNDES (2009–2026): quem viaja, quem gasta e o efeito da pandemia de COVID-19</h1>
+
+      <div class="meta-block authors">Giovanna Poggi, Juliana Neto</div>
+
+      <div class="meta-block affiliations">
+        Bacharelado em Sistemas de Informação, 6º período · semestre 2026.2<br>
+        Disciplina: Linguagem de Programação (Análise e Visualização de Dados com Python)<br>
+        Professor orientador: Alexandre Neves Louzada
+      </div>
+
+      <div class="badges" aria-label="Metadados do projeto">
+        <span class="badge"><span>Python</span><span>3.13</span></span>
+        <span class="badge"><span>código</span><span>MIT</span></span>
+        <span class="badge"><span>dados</span><span>ODbL 1.0</span></span>
+        <span class="badge"><span>texto</span><span>CC BY 4.0</span></span>
+        <span class="badge"><span>FAIR</span><span>compliant</span></span>
+      </div>
+
+      <a href="https://github.com/mochilicius/g2lingprog" class="repo-badge" target="_blank" rel="noopener noreferrer">
+        📦 Ver repositório GitHub (código e dados)
+      </a>
+    </header>
+
+    <div class="abstract-box">
+      <h3>Resumo</h3>
+      <p>
+        Viagens a serviço são um custo recorrente de bancos públicos e um indicador de como suas equipes trabalham. Este estudo
+        analisa 144.930 viagens de 5.480 empregados e dirigentes do Banco Nacional de Desenvolvimento Econômico e Social (BNDES)
+        realizadas entre 2009 e 2026, publicadas no portal de dados abertos do banco. Um pipeline em Python (pandas e numpy)
+        trata dois formatos de registro que convivem no mesmo arquivo, agrega 303.868 trechos em viagens, corrige os valores
+        pelo IPCA e cruza as viagens com a base de empregados e o organograma para identificar profissão, cargo e área.
+        Engenheiros são o grupo que mais viaja e mais gasta, com 67 viagens por pessoa e 26% do gasto real, seguidos de
+        economistas e administradores. O gasto é concentrado: 10% das pessoas respondem por 57% do total (Gini = 0,75).
+        A pandemia reduziu as viagens em 82% em 2020 e 88% em 2021 frente a 2019, sem nenhum registro entre abril e junho de
+        2020. Congressos e treinamentos foram os motivos mais afetados, enquanto as reuniões nos escritórios regionais quase
+        dobraram depois da crise. Em 2025 o volume ainda está 6% abaixo de 2019, mas cada viagem custa 38% mais em termos
+        reais. Os resultados indicam que o banco não voltou ao padrão anterior: viaja-se menos e de forma mais cara.
+      </p>
+      <div class="keywords">
+        <strong>Palavras-chave:</strong> dados abertos; BNDES; despesas de viagem; COVID-19; análise exploratória de dados; princípios FAIR.
+      </div>
+    </div>
+
+    <nav class="toc">
+      <h4>Sumário</h4>
+      <ol>
+        <li><a href="#intro">Introdução</a></li>
+        <li><a href="#metodologia">Metodologia e pipeline de dados</a></li>
+        <li><a href="#resultados">Resultados e discussão</a></li>
+        <li><a href="#conclusao">Conclusão</a></li>
+        <li><a href="#fair">Disponibilidade dos dados e princípios FAIR</a></li>
+        <li><a href="#referencias">Referências</a></li>
+      </ol>
+    </nav>
+
+    <!-- 1. Introdução -->
+    <section id="intro">
+      <h2>1. Introdução</h2>
+      <p>
+        O BNDES financia projetos em todo o país, e boa parte desse trabalho exige deslocamento: acompanhar obras, analisar
+        empresas, reunir-se com governos e participar de eventos do setor. Desde 2009 o banco publica cada trecho dessas viagens,
+        com datas, motivo e valores, o que permite observar não só quanto se gasta, mas quem viaja e para quê.
+      </p>
+      <p>
+        A pandemia de COVID-19 interrompeu de forma abrupta essa rotina e acelerou a adoção de reuniões remotas. Medir quanto
+        dessa mudança permaneceu depois da crise ajuda a entender se as viagens a serviço voltaram ao padrão anterior ou se o
+        trabalho a distância substituiu parte delas de forma duradoura.
+      </p>
+      <p>O estudo responde a três perguntas de pesquisa:</p>
+      <ul class="rq">
+        <li><strong>RQ1.</strong> Quais grupos de empregados (profissão, cargo e área) mais viajam?</li>
+        <li><strong>RQ2.</strong> Quais grupos concentram o maior gasto com viagens?</li>
+        <li><strong>RQ3.</strong> Como a pandemia de COVID-19 (março de 2020 a dezembro de 2021) alterou o volume, os motivos e o custo das viagens?</li>
+      </ul>
+    </section>
+
+    <!-- 2. Metodologia -->
+    <section id="metodologia">
+      <h2>2. Metodologia e pipeline de dados</h2>
+
+      <h3 class="sub">2.1 Fontes e granularidade</h3>
+      <p>
+        A base principal é o conjunto <em>Despesas viagens</em> do portal de dados abertos do BNDES (BNDES, 2026a), com 303.868
+        linhas, uma por <strong>trecho</strong>, de janeiro de 2009 a julho de 2026. Como ela não informa o setor de quem viajou,
+        foi cruzada com duas outras bases do mesmo portal: <em>Empregados e Estagiários</em> (BNDES, 2026b), que traz a profissão
+        (cargo de formação) e a função de 3.419 pessoas, e o <em>Organograma</em> (BNDES, 2026c), única base pública com a
+        lotação, restrita aos 34 dirigentes atuais. Os valores foram corrigidos pelo IPCA mensal obtido na API do Sistema
+        Gerenciador de Séries Temporais do Banco Central (BANCO CENTRAL DO BRASIL, 2026). Todas as fontes são acessadas com a
+        biblioteca <code>requests</code>, sem cadastro ou chave.
+      </p>
+
+      <h3 class="sub">2.2 Tratamento</h3>
+      <p>
+        O arquivo de viagens, em codificação latin-1 com separador ponto e vírgula, mistura <strong>dois formatos de registro</strong>.
+        Até 2019, as datas são ISO e os números usam ponto decimal, com o número de diárias multiplicado por 100; a partir de 2020,
+        datas e números seguem o padrão brasileiro (<code>3.902,57</code>). Uma conversão única multiplicaria os valores antigos por
+        100. O pipeline identifica o formato de cada linha pela data e aplica a regra correspondente:
+      </p>
+<pre><code>legado = df["datapartidaorigem"].str.contains("-", na=False)   # 2009-2019 usa data ISO
+for coluna in COLUNAS_VALOR:
+    convertido = pd.Series(np.nan, index=df.index)
+    convertido[legado] = pd.to_numeric(df.loc[legado, coluna], errors="coerce")        # '358.62'
+    convertido[~legado] = _numero_brasileiro(df.loc[~legado, coluna])                  # '3.902,57'
+    df[coluna] = convertido
+df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100               # '300' = 3 diárias</code></pre>
+      <p>
+        Com essa regra, passagens, diárias e acréscimos somam exatamente o valor total em 100% das viagens de 2009–2019, e a diária
+        mediana é de R$ 190 nos dois períodos, o que confirma a conversão. O segundo cuidado é a unidade de análise: valor total,
+        hospedagem e locação são da viagem e se repetem em cada trecho. Somar por linha inflaria o gasto em 144%, por isso os
+        trechos são agregados por <code>codigoviagem</code> antes de qualquer soma:
+      </p>
+<pre><code>viagens = trechos.groupby("codigoviagem").agg(
+    data_partida=("datapartidaorigem", "min"),
+    valor_passagens=("valorpassagem", "sum"),            # por trecho: soma
+    valor_diarias=("valordiariastrecho", "sum"),
+    valor_total=("valortotalviagemptpbndes", "max"),     # da viagem: repetido em cada trecho
+)</code></pre>
+      <p>
+        Os motivos foram normalizados (maiúsculas, sem acento), e o primeiro motivo listado foi adotado quando o registro traz
+        vários. Rótulos que mudaram de nome em 2020 para a mesma atividade (<em>Treinamento centralizado</em> e <em>Treinamento no
+        Brasil</em>) foram unificados como <em>Treinamento nacional</em>; sem isso, a categoria pareceria ter sido extinta pela pandemia.
+        O cruzamento com as bases de empregados e organograma é feito pelo nome normalizado, porque a base de viagens não traz
+        matrícula. Logo depois do cruzamento, nome e CPF (já parcialmente mascarado na fonte) são substituídos por um pseudônimo
+        (SHA-256), e a base tratada é gravada em <code>data/processed/viagens.csv.gz</code>.
+      </p>
+      <p>
+        Nenhuma linha é removida em silêncio. As 780 viagens de valor zero, as 152 com total divergente entre trechos e as 6.219
+        acima de Q3 + 1,5·IQR (calculado dentro de cada formato) ficam sinalizadas, e cada contagem é registrada em
+        <code>etl_log.json</code>. Os valores monetários são apresentados a preços de outubro de 2026.
+      </p>
+
+      <h3 class="sub">2.3 Quebras na série</h3>
+      <p>
+        A mudança de formato em 2020 traz outras duas quebras. Os códigos de cargo mudam por completo (até 2019 predominam
+        <em>Nível Superior</em> e <em>Gerente Executivo</em>; depois, códigos DAS), por isso o cargo é analisado separadamente em cada
+        período, e a profissão, que é fixa por pessoa, é a dimensão usada para comparar todo o intervalo. Além disso, a partir de 2020
+        os componentes detalhados deixam de fechar o valor total (só 32% das viagens fecham), e viagens internacionais passam a ser
+        registradas. Como essa quebra coincide com o início da pandemia, a RQ3 usa o <strong>número de viagens</strong> como medida
+        principal e trata o custo com cautela.
+      </p>
+    </section>
+
+    <!-- 3. Resultados -->
+    <section id="resultados">
+      <h2>3. Resultados e discussão</h2>
+
+      <h3 class="sub">3.1 Visão geral e concentração do gasto</h3>
+      <p>
+        No período, o BNDES realizou 144.930 viagens, com gasto de R$ 421 milhões em valores reais (R$ 261 milhões nominais).
+        A viagem típica é curta: dois trechos, ida e volta, e duas diárias. O valor total acompanha principalmente a passagem
+        (correlação de Pearson de 0,89 nas viagens de 2020 em diante) e, em seguida, as diárias (0,73); a hospedagem quase não se
+        relaciona com o total (0,06), porque vem zerada na maior parte dos registros. O custo, portanto, é puxado pelo deslocamento.
+      </p>
+      <p>
+        O gasto é concentrado em poucas pessoas. A Figura 1 mostra a curva de Lorenz do gasto acumulado por pessoa: os 10% que mais
+        gastam respondem por 57% do total, e o índice de Gini é 0,75. Essa concentração é coerente com a natureza do trabalho:
+        uma parcela das equipes acompanha projetos fora da sede de forma recorrente, enquanto a maioria viaja ocasionalmente.
+      </p>
+      <figure class="narrow">
+        <a href="assets/fig_lorenz.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_lorenz.png" alt="Curva de Lorenz do gasto com viagens por pessoa, com Gini de 0,75 e os 10% que mais gastam concentrando 57% do gasto" loading="lazy"></a>
+        <figcaption>Figura 1: Curva de Lorenz do gasto real com viagens por pessoa (2009–2026).</figcaption>
+      </figure>
+
+      <h3 class="sub">3.2 RQ1 e RQ2: quem viaja e quem gasta mais</h3>
+      <p>
+        <strong>Por profissão.</strong> A profissão foi identificada em 75,8% das viagens; a cobertura varia de 59% em 2009 a 88% em 2026,
+        porque a base de empregados só inclui quem está no banco hoje. Engenheiros lideram em todas as medidas (Tabela 1 e Figura 2):
+        são o grupo com mais viagens, mais viagens por pessoa e maior gasto. Economistas e administradores vêm em seguida. As cinco
+        carreiras técnicas de análise e acompanhamento de projetos somam 92% do gasto com profissão identificada, enquanto analistas de
+        sistemas e técnicos administrativos, apesar de numerosos no quadro, viajam pouco.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Profissão</th><th>Viagens</th><th>Pessoas que viajaram</th><th>Viagens por pessoa</th><th>Gasto real (R$ mi)</th><th>% do gasto</th></tr>
+          </thead>
+          <tbody>
+            <tr class="destaque"><td>Engenheiro</td><td>28.779</td><td>430</td><td>66,9</td><td>81,4</td><td>26,0%</td></tr>
+            <tr><td>Economista</td><td>22.971</td><td>389</td><td>59,1</td><td>66,8</td><td>21,3%</td></tr>
+            <tr><td>Administrador</td><td>19.471</td><td>379</td><td>51,4</td><td>55,9</td><td>17,8%</td></tr>
+            <tr><td>Advogado</td><td>16.420</td><td>411</td><td>40,0</td><td>47,6</td><td>15,2%</td></tr>
+            <tr><td>Contador</td><td>13.746</td><td>344</td><td>40,0</td><td>37,4</td><td>11,9%</td></tr>
+            <tr><td>Analista de Sistemas</td><td>3.791</td><td>248</td><td>15,3</td><td>10,4</td><td>3,3%</td></tr>
+          </tbody>
+        </table>
+        <p class="table-caption">Tabela 1: Viagens e gasto real por profissão, 2009–2026 (viagens com profissão identificada).</p>
+      </div>
+      <figure>
+        <a href="assets/fig_profissao.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_profissao.png" alt="Três painéis de barras horizontais com viagens, viagens por pessoa e gasto real por profissão; engenheiros lideram nos três" loading="lazy"></a>
+        <figcaption>Figura 2: Viagens totais, viagens por pessoa e gasto real por profissão.</figcaption>
+      </figure>
+
+      <p>
+        <strong>Por cargo.</strong> Na base de viagens, o cargo descreve o nível na estrutura. Até 2019, profissionais de
+        <em>Nível Superior</em> fizeram 58,3 mil viagens (R$ 146 milhões) e <em>Gerentes Executivos</em>, 39,5 mil (R$ 100 milhões).
+        A partir de 2020, com a nova codificação, o maior grupo é DAS-1011 (assessoramento), com 14,1 mil viagens e R$ 55 milhões
+        (Figura 3). Nos dois períodos, os cargos de base respondem pela maior parte do volume, e os de direção, pelos maiores custos por viagem.
+      </p>
+      <figure>
+        <a href="assets/fig_cargo.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_cargo.png" alt="Dois painéis de barras com viagens e gasto por cargo em 2009–2019 e em 2020 em diante" loading="lazy"></a>
+        <figcaption>Figura 3: Viagens e gasto real por cargo, separados por formato de registro.</figcaption>
+      </figure>
+
+      <p>
+        <strong>Por área.</strong> O organograma permite identificar a área apenas dos 34 dirigentes atuais, cujas viagens são 3,7%
+        do total; o resultado descreve a liderança, não o banco inteiro. Entre eles, a superintendência ASC é a que mais viaja
+        (475 viagens) e mais gasta (R$ 1,9 milhão), seguida de ADIG e AI (Figura 4). Superintendentes viajam mais por pessoa
+        (164 viagens, contra 140 dos diretores), mas a viagem mediana de um diretor custa 59% a mais: R$ 4,8 mil contra R$ 3,0 mil.
+      </p>
+      <figure>
+        <a href="assets/fig_area.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_area.png" alt="Barras horizontais de viagens e gasto real por área da liderança, com superintendências em azul e diretorias em laranja" loading="lazy"></a>
+        <figcaption>Figura 4: Viagens e gasto real dos dirigentes atuais, por área (sigla do organograma).</figcaption>
+      </figure>
+
+      <p>
+        <strong>Por motivo.</strong> Acompanhamento de projeto (20% das viagens) e reuniões em órgãos governamentais (18%) são os
+        motivos mais frequentes; as reuniões em órgãos do governo concentram o maior gasto, R$ 80,9 milhões. Os dez motivos
+        principais respondem por 90% das viagens.
+      </p>
+
+      <h3 class="sub">3.3 RQ3: o efeito da pandemia</h3>
+      <p>
+        A Figura 5 mostra a série mensal. As viagens já vinham caindo antes da pandemia, de 13,0 mil em 2011 para 7,7 mil em 2019 (−41%),
+        mas a ruptura de 2020 é de outra ordem: entre abril e junho de 2020 não há nenhuma viagem registrada, e o ano fecha 82% abaixo
+        de 2019. Em 2021 a queda chega a 88%, e só 229 pessoas viajaram, contra 1.540 em 2019 (Tabela 2).
+      </p>
+      <figure>
+        <a href="assets/fig_serie_mensal.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_serie_mensal.png" alt="Série mensal de viagens de 2009 a 2026 com média móvel de 12 meses e faixa destacando a pandemia" loading="lazy"></a>
+        <figcaption>Figura 5: Viagens iniciadas por mês e média móvel de 12 meses; faixa laranja = pandemia (mar/2020 a dez/2021).</figcaption>
+      </figure>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Ano</th><th>Viagens</th><th>vs. 2019</th><th>Pessoas que viajaram</th><th>Gasto real (R$ mi)</th><th>Custo mediano real</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>2019</td><td>7.671</td><td>—</td><td>1.540</td><td>20,6</td><td>R$ 2.494</td></tr>
+            <tr class="destaque"><td>2020</td><td>1.381</td><td>−82,0%</td><td>607</td><td>4,7</td><td>R$ 2.680</td></tr>
+            <tr class="destaque"><td>2021</td><td>918</td><td>−88,0%</td><td>229</td><td>3,8</td><td>R$ 2.884</td></tr>
+            <tr><td>2022</td><td>3.855</td><td>−49,7%</td><td>988</td><td>18,4</td><td>R$ 3.566</td></tr>
+            <tr><td>2023</td><td>5.489</td><td>−28,4%</td><td>1.314</td><td>25,4</td><td>R$ 3.725</td></tr>
+            <tr><td>2024</td><td>5.790</td><td>−24,5%</td><td>1.268</td><td>27,2</td><td>R$ 3.674</td></tr>
+            <tr><td>2025</td><td>7.204</td><td>−6,1%</td><td>1.657</td><td>30,6</td><td>R$ 3.439</td></tr>
+          </tbody>
+        </table>
+        <p class="table-caption">Tabela 2: Volume, pessoas e custo das viagens antes, durante e depois da pandemia (valores reais de out/2026).</p>
+      </div>
+      <p>
+        A pandemia não afetou os motivos da mesma forma (Figura 6). Congressos, feiras e seminários caíram 97%, e treinamentos, 95%:
+        são atividades que podem ser feitas a distância, embora os dados não registrem o formato em que ocorreram. Reuniões nos escritórios regionais foram as que menos caíram (−61%) e,
+        em 2023, quase dobraram em relação a 2019 (737 contra 372). Congressos voltaram rapidamente (−8% em 2023), mas fomento (−59%),
+        acompanhamento de projeto (−44%) e treinamento (−54%) seguiam bem abaixo do nível anterior, o que sugere que parte dessas
+        atividades passou a ser feita a distância.
+      </p>
+      <figure>
+        <a href="assets/fig_motivos_pandemia.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_motivos_pandemia.png" alt="Gráfico de pontos comparando viagens por motivo em 2019, na média de 2020–21 e em 2023" loading="lazy"></a>
+        <figcaption>Figura 6: Viagens por motivo em 2019, na média anual de 2020–21 e em 2023 (dez maiores motivos de 2019).</figcaption>
+      </figure>
+      <p>
+        O custo seguiu o caminho oposto ao do volume (Figura 7). Em valores reais, a viagem mediana passou de R$ 2.494 em 2019 para
+        R$ 3.725 em 2023 (+49%) e R$ 3.439 em 2025 (+38%), e o gasto anual de 2025 (R$ 30,6 milhões) já supera o de 2019, com menos
+        viagens. A correção pelo IPCA descarta a inflação como explicação, mas esse salto coincide com a mudança no formato de registro,
+        em que o total passa a incluir itens não detalhados nas colunas de componentes; por isso não é possível separar com segurança
+        quanto do aumento é encarecimento real e quanto é mudança contábil.
+      </p>
+      <figure>
+        <a href="assets/fig_gasto_anual.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_gasto_anual.png" alt="Barras de gasto real anual de 2009 a 2025, com 2020 e 2021 em laranja, e linha do custo mediano por viagem" loading="lazy"></a>
+        <figcaption>Figura 7: Gasto real anual (barras) e custo mediano real por viagem (linha), 2009–2025.</figcaption>
+      </figure>
+    </section>
+
+    <!-- 4. Conclusão -->
+    <section id="conclusao">
+      <h2>4. Conclusão</h2>
+      <p>
+        Engenheiros, economistas e administradores, as carreiras ligadas à análise e ao acompanhamento de projetos, são os grupos que
+        mais viajam e mais gastam no BNDES, e o gasto se concentra em uma parcela pequena das pessoas. Entre os dirigentes, superintendentes
+        viajam mais, enquanto diretores fazem viagens mais caras. A pandemia interrompeu as viagens por três meses e reduziu o volume
+        em quase 90% em 2021; cinco anos depois, o banco ainda viaja menos do que em 2019, mas cada viagem custa mais em termos reais.
+        Os motivos que exigem presença física, como reuniões regionais e congressos, recuperaram-se primeiro; treinamento e fomento,
+        não.
+      </p>
+      <p>
+        <strong>Limitações.</strong> O portal não publica a lotação de todos os empregados, e a análise por área cobre só a liderança
+        atual. As bases de empregados e organograma são retratos de hoje, o que reduz a cobertura nos anos antigos e atribui a cada
+        dirigente a área atual, não a da época da viagem. Os cruzamentos por nome podem falhar em grafias divergentes. A mudança de
+        formato de 2020 impede comparar cargos entre os períodos e torna a comparação de custos menos precisa.
+      </p>
+      <p>
+        <strong>Trabalhos futuros.</strong> Solicitar ao BNDES, via Lei de Acesso à Informação, a lotação histórica dos empregados
+        permitiria responder à RQ1 por área para todo o banco. Também seria possível comparar o padrão de viagens com o de outros órgãos
+        federais publicado no Portal da Transparência e investigar a relação entre viagens e o volume de desembolsos por região.
+      </p>
+    </section>
+
+    <!-- 5. FAIR -->
+    <section id="fair">
+      <h2>5. Disponibilidade dos dados e princípios FAIR</h2>
+      <div class="fair-box">
+        <h3>Declaração de aderência FAIR (Wilkinson et al., 2016)</h3>
+        <ul>
+          <li><strong>Findable (localizável):</strong> repositório público com <code>README.md</code> contendo resumo executivo, palavras-chave, autoria, disciplina e links permanentes para cada fonte original no portal do BNDES.</li>
+          <li><strong>Accessible (acessível):</strong> todas as fontes são abertas e baixadas pelo próprio pipeline com <code>requests</code>, sem cadastro, chave ou serviço pago; o artigo está publicado no GitHub Pages.</li>
+          <li><strong>Interoperable (interoperável):</strong> base tratada em CSV comprimido (<code>.csv.gz</code>, UTF-8) e dicionário de variáveis com tipo, formato, significado e origem em <code>data/data_dictionary.md</code>.</li>
+          <li><strong>Reusable (reutilizável):</strong> código sob licença MIT, dados sob ODbL 1.0 (licença das fontes do BNDES), texto e figuras sob CC BY 4.0; dependências congeladas em <code>requirements.txt</code> e cada etapa do tratamento registrada em <code>etl_log.json</code>.</li>
+        </ul>
+      </div>
+      <p style="margin-top: 1.4rem;">Para reproduzir o pipeline e a análise do zero:</p>
+<pre><code>git clone https://github.com/mochilicius/g2lingprog.git
+cd g2lingprog
+python -m venv .venv &amp;&amp; source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python -m src.etl                                      # baixa as fontes e gera data/processed/viagens.csv.gz
+jupyter nbconvert --to notebook --execute --inplace notebooks/analise_exploratoria.ipynb</code></pre>
+    </section>
+
+    <!-- 6. Referências -->
+    <section id="referencias" class="references">
+      <h2>6. Referências</h2>
+      <ol>
+        <li>BANCO CENTRAL DO BRASIL. <strong>Sistema Gerenciador de Séries Temporais</strong>: série 433, Índice Nacional de Preços ao Consumidor Amplo (IPCA). Brasília, 2026. Disponível em: https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados?formato=json. Acesso em: 12 nov. 2026.</li>
+        <li>BNDES. <strong>Despesas viagens</strong>. Rio de Janeiro: Portal de Dados Abertos do BNDES, 2026a. Disponível em: https://dadosabertos.bndes.gov.br/dataset/despesas-viagens. Acesso em: 12 nov. 2026.</li>
+        <li>BNDES. <strong>Empregados e Estagiários do BNDES</strong>. Rio de Janeiro: Portal de Dados Abertos do BNDES, 2026b. Disponível em: https://dadosabertos.bndes.gov.br/dataset/empregados. Acesso em: 12 nov. 2026.</li>
+        <li>BNDES. <strong>Organograma</strong>. Rio de Janeiro: Portal de Dados Abertos do BNDES, 2026c. Disponível em: https://dadosabertos.bndes.gov.br/dataset/organograma. Acesso em: 12 nov. 2026.</li>
+        <li>HARRIS, Charles R. et al. Array programming with NumPy. <strong>Nature</strong>, v. 585, p. 357–362, 2020.</li>
+        <li>HUNTER, John D. Matplotlib: a 2D graphics environment. <strong>Computing in Science &amp; Engineering</strong>, v. 9, n. 3, p. 90–95, 2007.</li>
+        <li>McKINNEY, Wes. <strong>Python for data analysis</strong>: data wrangling with pandas, NumPy, and Jupyter. 3. ed. Sebastopol: O'Reilly Media, 2022.</li>
+        <li>WASKOM, Michael L. seaborn: statistical data visualization. <strong>Journal of Open Source Software</strong>, v. 6, n. 60, p. 3021, 2021.</li>
+        <li>WILKINSON, Mark D. et al. The FAIR Guiding Principles for scientific data management and stewardship. <strong>Scientific Data</strong>, v. 3, p. 160018, 2016.</li>
+      </ol>
+    </section>
+
+    <footer>
+      Texto e figuras sob licença CC BY 4.0 · código sob licença MIT · dados sob ODbL 1.0 · 2026
+    </footer>
+  </div>
+</body>
+</html>

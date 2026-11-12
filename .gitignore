@@ -1,0 +1,10 @@
+# ambiente e cache
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+
+# base bruta de viagens (~73 MB): baixada por `python -m src.etl`
+data/raw/despesas-viagens.csv
