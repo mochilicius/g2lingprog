@@ -1,0 +1,27 @@
+# tema kawaii: tons pastel de rosa, lilás e menta e cantos arredondados
+# (a fonte arredondada M PLUS Rounded 1c é carregada pelo CSS do app.py)
+[theme]
+base = "light"
+primaryColor = "#e94f9a"
+backgroundColor = "#fff8fb"
+secondaryBackgroundColor = "#ffe3f0"
+textColor = "#4a2d4f"
+linkColor = "#e94f9a"
+font = "sans-serif"
+headingFont = "sans-serif"
+headingFontWeights = [800, 800, 700]
+metricValueFontSize = "1.45rem"
+baseRadius = "full"
+buttonRadius = "full"
+borderColor = "#f6cfe2"
+dataframeBorderColor = "#f6cfe2"
+dataframeHeaderBackgroundColor = "#ffd1e6"
+dataframeHeaderTextColor = "#5b2a63"
+showWidgetBorder = true
+chartCategoricalColors = ["#ff8fc3", "#b48cf0", "#7fd8c0", "#ffb38a", "#8ec5ff", "#f5d76e"]
+chartSequentialColors = ["#fff0f7", "#ffd1e6", "#ffb0d4", "#ff8fc3", "#f06aac", "#e94f9a", "#c93d84", "#a8306d", "#86245a", "#651a44"]
+
+[theme.sidebar]
+backgroundColor = "#f1e8ff"
+secondaryBackgroundColor = "#ffffff"
+borderColor = "#e2d3fb"

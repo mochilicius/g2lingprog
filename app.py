@@ -9,7 +9,10 @@ import streamlit as st
 
 from src import etl
 
-st.set_page_config(page_title="Viagens do BNDES", page_icon="✈️", layout="wide")
+st.set_page_config(page_title="Viagens do BNDES", page_icon="🎀", layout="wide")
+
+# paleta kawaii usada nos gráficos (a mesma do .streamlit/config.toml)
+ROSA, LILAS, MENTA, PESSEGO, CINZA_ROSADO = "#ff8fc3", "#b48cf0", "#7fd8c0", "#ffb38a", "#d9c2d6"
 
 REFERENCIA_PADRAO = {"2009-2019": "Nível Superior", "2020+": "DAS-1011 (Assessoramento)"}
 SEM_CARGO = ["Não se aplica", "Código não documentado"]
@@ -98,12 +101,88 @@ st.sidebar.caption(f"{numero(len(d))} de {numero(len(df))} viagens")
 st.sidebar.caption("Fonte: Portal de Dados Abertos do BNDES (ODbL 1.0) e IPCA/BCB.")
 
 # ---------------- CABEÇALHO ----------------
-st.title("Despesas de viagem do BNDES (2009–2026)")
-st.markdown(
-    "Quem viaja, quem gasta e o efeito da pandemia de COVID-19.  \n"
-    "**Giovanna Poggi e Juliana Neto** · Linguagem de Programação (Análise e Visualização de Dados com Python) · "
-    "Prof. Alexandre Neves Louzada · 2026.2"
+# acabamento que o tema do config.toml não cobre: fundo de bolinhas, cartões dos KPIs e abas em pílula
+st.markdown("""
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap");
+  .stApp, .stApp p, .stApp li, .stApp label, .stApp input, .stApp button, .stApp h1, .stApp h2, .stApp h3,
+  .stApp [data-testid="stMetricValue"], .stApp [data-testid="stMetricLabel"], .stApp [data-baseweb="tab"],
+  .stApp [data-baseweb="select"] div, .kawaii-topo, .kawaii-topo * {
+    font-family: "M PLUS Rounded 1c", sans-serif !important;
+  }
+  .stApp {
+    background-image: radial-gradient(#ffe3f0 2.5px, transparent 2.5px), radial-gradient(#f1e8ff 2.5px, transparent 2.5px);
+    background-size: 36px 36px; background-position: 0 0, 18px 18px;
+  }
+  .kawaii-topo {
+    position: relative; overflow: hidden; text-align: center; border-radius: 32px; padding: 26px 20px 30px;
+    background: linear-gradient(135deg, #ffd1e6 0%, #e8d9ff 55%, #d6f5ec 100%);
+    border: 3px solid #fff; box-shadow: 0 8px 0 #ffe3f0; margin-bottom: 18px;
+  }
+  .kawaii-topo h1 { color: #5b2a63; margin: 6px 0 4px; padding: 0; font-size: clamp(1.7rem, 4vw, 2.6rem); }
+  .kawaii-topo p { color: #6d4a72; margin: 2px 0; }
+  .kawaii-topo .etiqueta {
+    display: inline-block; background: #fff; color: #e94f9a; border: 2px dashed #ff8fc3; border-radius: 999px;
+    padding: 2px 14px; font-size: .78rem; font-weight: 800; letter-spacing: 1.5px;
+  }
+  .kawaii-topo svg.mascote { width: 120px; height: auto; animation: voa 3.4s ease-in-out infinite; }
+  .kawaii-topo .brilho { position: absolute; animation: pisca 2.4s ease-in-out infinite; }
+  @keyframes voa { 50% { transform: translateY(-7px) rotate(-4deg); } }
+  @keyframes pisca { 50% { transform: scale(.7); opacity: .5; } }
+  @media (prefers-reduced-motion: reduce) { .kawaii-topo svg.mascote, .kawaii-topo .brilho { animation: none; } }
+  [data-testid="stMetric"] {
+    background: #fff; border: 3px solid #ffe3f0; border-radius: 24px; padding: 12px 14px;
+    box-shadow: 0 6px 0 rgba(233, 79, 154, .15);
+  }
+  [data-testid="stMetricValue"] { color: #5b2a63; }
+  h3::after { content: " ♡"; color: #ff8fc3; }
+  [data-testid="stSidebar"] h1::before { content: "🎀 "; }
+</style>
+""", unsafe_allow_html=True)
+
+MASCOTE = """
+<svg class="mascote" viewBox="0 0 160 110" role="img" aria-label="Aviãozinho sorridente com um laço, mascote do dashboard">
+  <path d="M20 58 Q16 40 34 40 L112 40 Q146 40 150 58 Q146 76 112 76 L34 76 Q16 76 20 58 Z" fill="#fff" stroke="#e94f9a" stroke-width="4"/>
+  <path d="M30 40 L18 16 Q16 10 24 12 L52 40 Z" fill="#c7a8f5" stroke="#8e6ad8" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M70 72 L54 102 Q52 108 60 106 L96 72 Z" fill="#ff8fc3" stroke="#e94f9a" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M70 44 L60 22 Q58 16 66 18 L92 44 Z" fill="#ff8fc3" stroke="#e94f9a" stroke-width="3.5" stroke-linejoin="round"/>
+  <circle cx="118" cy="54" r="5" fill="#4a2d4f"/><circle cx="136" cy="54" r="5" fill="#4a2d4f"/>
+  <circle cx="119.6" cy="52.2" r="1.7" fill="#fff"/><circle cx="137.6" cy="52.2" r="1.7" fill="#fff"/>
+  <ellipse cx="111" cy="64" rx="6" ry="3.8" fill="#ff9fc9" opacity=".85"/><ellipse cx="143" cy="64" rx="5" ry="3.5" fill="#ff9fc9" opacity=".85"/>
+  <path d="M122 63 Q127 68 132 63" fill="none" stroke="#4a2d4f" stroke-width="2.8" stroke-linecap="round"/>
+  <circle cx="58" cy="58" r="6" fill="#bfe3ff" stroke="#6aa8e8" stroke-width="2.5"/><circle cx="80" cy="58" r="6" fill="#bfe3ff" stroke="#6aa8e8" stroke-width="2.5"/>
+  <g transform="translate(126 34) rotate(18)">
+    <path d="M0 0 L-13 -8 Q-16 0 -13 8 Z" fill="#ff8fc3" stroke="#e94f9a" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M0 0 L13 -8 Q16 0 13 8 Z" fill="#ff8fc3" stroke="#e94f9a" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle r="3.8" fill="#e94f9a"/>
+  </g>
+</svg>"""
+
+
+def brilho(svg_path, cor, estilo):
+    return f'<svg class="brilho" style="{estilo}" viewBox="0 0 40 40" aria-hidden="true"><path d="{svg_path}" fill="{cor}"/></svg>'
+
+
+ESTRELA = "M20 2 C22 14 26 18 38 20 C26 22 22 26 20 38 C18 26 14 22 2 20 C14 18 18 14 20 2 Z"
+CORACAO = "M20 36 C6 26 2 18 2 12 a9 9 0 0 1 18 -2 a9 9 0 0 1 18 2 C38 18 34 26 20 36 Z"
+enfeites = (
+    brilho(ESTRELA, "#fff", "top:18px;left:7%;width:30px;")
+    + brilho(CORACAO, "#ff8fc3", "top:26px;right:9%;width:26px;animation-delay:.6s;")
+    + brilho(ESTRELA, "#c7a8f5", "bottom:20px;left:14%;width:22px;animation-delay:1.1s;")
+    + brilho(CORACAO, "#c7a8f5", "bottom:24px;right:16%;width:20px;animation-delay:1.6s;")
 )
+
+st.markdown(f"""
+<div class="kawaii-topo">
+  {enfeites}
+  {MASCOTE}
+  <div><span class="etiqueta">LINGUAGEM DE PROGRAMAÇÃO · PROJETO G2</span></div>
+  <h1>Despesas de viagem do BNDES (2009–2026)</h1>
+  <p>Quem viaja, quem gasta e o efeito da pandemia de COVID-19.</p>
+  <p><strong>Giovanna Poggi e Juliana Neto</strong> · Prof. Alexandre Neves Louzada<br>
+  Linguagem de Programação (Análise e Visualização de Dados com Python) · 2026.2</p>
+</div>
+""", unsafe_allow_html=True)
 
 if d.empty:
     st.warning("Nenhuma viagem com esses filtros. Tente ampliar o período ou limpar algum filtro.")
@@ -114,7 +193,7 @@ c1, c2, c3, c4, c5 = st.columns(5)
 c1.metric("Viagens", numero(len(d)))
 c2.metric("Pessoas que viajaram", numero(pessoas))
 c3.metric("Gasto total", reais(d[COL_VALOR].sum()))
-c4.metric("Custo mediano de 1 viagem", reais(d[COL_VALOR].median()))
+c4.metric("Viagem típica", reais(d[COL_VALOR].median()), help="Custo mediano de uma viagem")
 c5.metric("Viagens por pessoa", numero(len(d) / pessoas, 1))
 
 if anos[0] <= 2019 < 2020 <= anos[1]:
@@ -136,7 +215,7 @@ with abas[0]:
 
     st.subheader("Gasto por ano")
     anual = d.groupby("ano")[COL_VALOR].sum().rename("gasto") / 1e6
-    st.bar_chart(anual, y_label="R$ milhões", color="#1e3a8a")
+    st.bar_chart(anual, y_label="R$ milhões", color=ROSA)
 
     st.subheader("Concentração do gasto")
     gasto_pessoa = d.groupby("pessoa_id")[COL_VALOR].sum().sort_values(ascending=False)
@@ -171,7 +250,7 @@ with abas[1]:
                                    "gasto": "Gasto total", "gasto_por_pessoa": "Gasto por pessoa"}[m],
         )
         top = prof.sort_values(medida, ascending=False).head(10)
-        st.bar_chart(top[medida], horizontal=True, color="#3b82f6", sort=f"-{medida}")
+        st.bar_chart(top[medida], horizontal=True, color=LILAS, sort=f"-{medida}")
         st.dataframe(
             top.style.format({"gasto": reais, "gasto_por_pessoa": reais, "custo_mediano": reais,
                               "viagens_por_pessoa": "{:.1f}"}),
@@ -228,10 +307,10 @@ with abas[2]:
         g1, g2 = st.columns(2)
         with g1:
             st.markdown(f"**Custo de uma viagem ({estatistica})**")
-            st.bar_chart(cargos[col_custo], horizontal=True, color="#1e3a8a", sort=f"-{col_custo}", x_label="R$ por viagem")
+            st.bar_chart(cargos[col_custo], horizontal=True, color=ROSA, sort=f"-{col_custo}", x_label="R$ por viagem")
         with g2:
             st.markdown("**Gasto de uma pessoa no período**")
-            st.bar_chart(cargos["gasto_por_pessoa"], horizontal=True, color="#ea580c", sort="-gasto_por_pessoa", x_label="R$ por pessoa")
+            st.bar_chart(cargos["gasto_por_pessoa"], horizontal=True, color=LILAS, sort="-gasto_por_pessoa", x_label="R$ por pessoa")
 
         st.dataframe(
             cargos[["viagens", "pessoas", col_custo, "1_viagem_equivale_a", "viagens_por_pessoa", "gasto_por_pessoa",
@@ -258,7 +337,7 @@ with abas[3]:
         st.info("Nenhuma viagem de dirigente nesta seleção.")
     else:
         area = area.sort_values("viagens", ascending=False)
-        st.bar_chart(area.set_index("area_sigla")["viagens"].head(15), horizontal=True, color="#3b82f6", sort="-viagens")
+        st.bar_chart(area.set_index("area_sigla")["viagens"].head(15), horizontal=True, color=LILAS, sort="-viagens")
         st.dataframe(
             area.rename(columns={"area_sigla": "área", "funcao_dirigente": "função"})
                 .style.format({"gasto": reais, "custo_mediano": reais}),
@@ -273,7 +352,7 @@ with abas[4]:
     mot = mot.sort_values("viagens", ascending=False)
     mot["% das viagens"] = mot["viagens"] / mot["viagens"].sum() * 100
     mot.index.name = "Motivo"
-    st.bar_chart(mot["viagens"].head(12), horizontal=True, color="#1e3a8a", sort="-viagens")
+    st.bar_chart(mot["viagens"].head(12), horizontal=True, color=ROSA, sort="-viagens")
     st.dataframe(mot.head(20).style.format({"gasto": reais, "custo_mediano": reais, "% das viagens": "{:.1f}%"}),
                  width="stretch")
     st.caption("Motivo principal = primeiro motivo listado; 'Treinamento centralizado' (até 2019) e "
@@ -299,7 +378,7 @@ with abas[5]:
             m2.metric("2021 vs 2019", f"{numero(b2021, 0)}%")
         if b2025 is not None:
             m3.metric("2025 vs 2019", f"{numero(b2025, 0)}%")
-    st.bar_chart(por_ano["viagens"], y_label="Viagens no ano", color="#ea580c")
+    st.bar_chart(por_ano["viagens"], y_label="Viagens no ano", color=PESSEGO)
     tabela_ano = por_ano.rename(columns={"viagens": "Viagens", "pessoas": "Pessoas", "gasto": "Gasto",
                                          "custo_mediano": "Custo mediano", "viagens_vs_2019_%": "Viagens vs 2019"})
     tabela_ano.index.name = "Ano"
@@ -331,7 +410,7 @@ with abas[5]:
             tab.style.format({"2019": numero, "2020–21": numero, "2023": numero,
                               "queda na pandemia": pct, "2023 vs 2019": pct})
                      .bar(subset=[c for c in ["queda na pandemia", "2023 vs 2019"] if c in tab], align="zero",
-                          color=["#fdba74", "#93c5fd"]),
+                          color=["#ffc9a8", "#c9b3f5"]),
             width="stretch",
         )
 
