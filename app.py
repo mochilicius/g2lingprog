@@ -328,19 +328,28 @@ with abas[3]:
     st.subheader("Áreas da liderança (organograma)")
     st.caption(
         "O BNDES só publica a lotação dos 34 dirigentes atuais (diretores e superintendentes), cujas viagens são "
-        "cerca de 4% do total. O portal informa apenas a sigla da área."
+        "cerca de 4% do total. Como o portal não tem tabela de setores, o nome de cada área e a sua diretoria foram "
+        "mapeados manualmente no código a partir do organograma oficial. As viagens de cada dirigente cobrem toda a "
+        "série, inclusive antes do cargo atual."
     )
-    area = d.dropna(subset=["area_sigla"]).groupby(["area_sigla", "funcao_dirigente"]).agg(
-        viagens=("codigoviagem", "size"), gasto=(COL_VALOR, "sum"), custo_mediano=(COL_VALOR, "median"),
-    ).reset_index()
-    if area.empty:
+    lider = d.dropna(subset=["area_sigla"])
+    if lider.empty:
         st.info("Nenhuma viagem de dirigente nesta seleção.")
     else:
-        area = area.sort_values("viagens", ascending=False)
-        st.bar_chart(area.set_index("area_sigla")["viagens"].head(15), horizontal=True, color=LILAS, sort="-viagens")
+        visao = st.radio("Agrupar por", ["Diretoria", "Área"], horizontal=True)
+        chave = ["diretoria"] if visao == "Diretoria" else ["area_sigla", "area_nome", "diretoria"]
+        grupo = lider.groupby(chave).agg(
+            viagens=("codigoviagem", "size"), dirigentes=("pessoa_id", "nunique"),
+            gasto=(COL_VALOR, "sum"), custo_mediano=(COL_VALOR, "median"),
+        ).reset_index()
+        grupo["viagens_por_dirigente"] = grupo["viagens"] / grupo["dirigentes"]
+        grupo = grupo.sort_values("gasto", ascending=False)
+        rotulo = "diretoria" if visao == "Diretoria" else "area_sigla"
+        st.bar_chart(grupo.set_index(rotulo)["gasto"].head(15), horizontal=True, color=LILAS, sort="-gasto",
+                     x_label="Gasto")
         st.dataframe(
-            area.rename(columns={"area_sigla": "área", "funcao_dirigente": "função"})
-                .style.format({"gasto": reais, "custo_mediano": reais}),
+            grupo.rename(columns={"area_sigla": "sigla", "area_nome": "área", "diretoria": "diretoria"})
+                 .style.format({"gasto": reais, "custo_mediano": reais, "viagens_por_dirigente": "{:.0f}"}),
             hide_index=True, width="stretch",
         )
 
@@ -419,7 +428,7 @@ with abas[5]:
 # ---------------- DADOS ----------------
 with abas[6]:
     st.subheader("Base tratada (filtrada)")
-    colunas = ["codigoviagem", "data_partida", "ano", "cargo", "profissao", "area_sigla", "motivo_principal",
+    colunas = ["codigoviagem", "data_partida", "ano", "cargo", "profissao", "area_sigla", "area_nome", "diretoria", "motivo_principal",
                "internacional", "n_trechos", "n_diarias", "valor_total", "valor_total_real", "outlier_valor"]
     st.dataframe(d[colunas], hide_index=True, width="stretch")
     st.download_button("Baixar CSV filtrado", d[colunas].to_csv(index=False).encode("utf-8"),

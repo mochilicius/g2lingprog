@@ -72,6 +72,60 @@ MOTIVOS_EQUIVALENTES = {
     "TREINAMENTO NO BRASIL": "TREINAMENTO NACIONAL",
 }
 
+# Estrutura de áreas do BNDES, digitada à mão. O portal de dados abertos não tem uma tabela de setores:
+# o organograma.csv traz só a sigla da lotação de cada dirigente. Os nomes das áreas e a diretoria a que
+# cada uma pertence foram transcritos do Organograma Geral e da página "Quem é quem no BNDES"
+# (atualização de 13/10/2026). Se o banco reestruturar as áreas, este dicionário precisa ser revisto.
+DIRETORIAS = {
+    "PRESI": "Presidência",
+    "DIR1": "DIR1 · Pessoas, TI e Operações",
+    "DIR2": "DIR2 · Socioambiental",
+    "DIR3": "DIR3 · Financeira e de Mercado de Capitais",
+    "DIR4": "DIR4 · Crédito Digital para MPMEs e Gestão do Fundo Rio Doce",
+    "DIR5": "DIR5 · Infraestrutura e Mudança Climática",
+    "DIR6": "DIR6 · Jurídica",
+    "DIR7": "DIR7 · Desenvolvimento Produtivo, Inovação e Comércio Exterior",
+    "DIR8": "DIR8 · Planejamento e Relações Institucionais",
+    "DIR9": "DIR9 · Risco e Compliance",
+    "CA": "Conselho de Administração",
+}
+AREAS = {  # sigla: (nome da área, chave da diretoria)
+    "PRESI": ("Presidência", "PRESI"),
+    "ARMC": ("Área de Relacionamento, Marketing e Cultura", "PRESI"),
+    "DIR1": ("Diretoria 1", "DIR1"),
+    "ARH": ("Área de Recursos Humanos", "DIR1"),
+    "ATI": ("Área de Tecnologia da Informação", "DIR1"),
+    "ASN": ("Área de Suporte ao Negócio", "DIR1"),
+    "DIR2": ("Diretoria 2", "DIR2"),
+    "AS": ("Área de Desenvolvimento Social e Gestão Pública", "DIR2"),
+    "AMA": ("Área de Meio Ambiente", "DIR2"),
+    "DIR3": ("Diretoria 3", "DIR3"),
+    "AF": ("Área Financeira", "DIR3"),
+    "ACO": ("Área de Controladoria", "DIR3"),
+    "AMC": ("Área de Mercado de Capitais, Investimentos e Participações", "DIR3"),
+    "DIR4": ("Diretoria 4", "DIR4"),
+    "ADIG": ("Área de Operações e Canais Digitais", "DIR4"),
+    "ARD": ("Área de Enfrentamento de Eventos Extremos e Gestão do Fundo Rio Doce", "DIR4"),
+    "DIR5": ("Diretoria 5", "DIR5"),
+    "AINFRA": ("Área de Infraestrutura", "DIR5"),
+    "AEC": ("Área de Transição Energética e Clima", "DIR5"),
+    "DIR6": ("Diretoria 6", "DIR6"),
+    "AJI": ("Área Jurídica Institucional", "DIR6"),
+    "AJN": ("Área Jurídica de Negócios", "DIR6"),
+    "DIR7": ("Diretoria 7", "DIR7"),
+    "AI": ("Área de Desenvolvimento Produtivo e Inovação", "DIR7"),
+    "AEX": ("Área de Comércio Exterior", "DIR7"),
+    "DIR8": ("Diretoria 8", "DIR8"),
+    "ASC": ("Área de Soluções para Cidades", "DIR8"),
+    "ASI": ("Área de Soluções de Infraestrutura", "DIR8"),
+    "AP": ("Área de Planejamento e Pesquisa Econômica", "DIR8"),
+    "AINT": ("Área Internacional e de Captação de Recursos", "DIR8"),
+    "DIR9": ("Diretoria 9", "DIR9"),
+    "AGR": ("Área de Gestão de Riscos", "DIR9"),
+    "AIC": ("Área de Integridade e Compliance", "DIR9"),
+    "AT": ("Auditoria Interna", "CA"),  # ligada ao Conselho de Administração, não a uma diretoria
+}
+
 COLUNAS_VALOR = [
     "valorpassagem", "numerodiarias", "valordiariastrecho", "valortotalviagemptpbndes",
     "valoracrescimosdeducoes", "valortotalhospedagem", "valortotallocacao",
@@ -244,6 +298,14 @@ def enriquecer(viagens: pd.DataFrame, empregados: pd.DataFrame, organograma: pd.
     log["cobertura_profissao"] = round(float(df["profissao"].notna().mean()), 4)
     log["cobertura_area_organograma"] = round(float(df["area_sigla"].notna().mean()), 4)
 
+    # nome da área e diretoria vêm do mapeamento manual AREAS (não há tabela de setores no portal)
+    siglas_sem_mapa = sorted(set(organograma["lotacao"]) - set(AREAS))
+    if siglas_sem_mapa:
+        raise ValueError(f"Siglas do organograma sem entrada em AREAS: {siglas_sem_mapa}. Atualize o mapeamento.")
+    df["area_nome"] = df["area_sigla"].map(lambda s: AREAS[s][0] if s in AREAS else np.nan)
+    df["diretoria"] = df["area_sigla"].map(lambda s: DIRETORIAS[AREAS[s][1]] if s in AREAS else np.nan)
+    log["areas_mapeadas_manualmente"] = len(AREAS)
+
     # dado pessoal sai aqui: depois do cruzamento só fica um pseudônimo
     df["pessoa_id"] = df["nome_normalizado"].map(pseudonimo)
     log["pessoas_distintas"] = int(df["pessoa_id"].nunique())
@@ -283,7 +345,7 @@ def marcar_outliers(df: pd.DataFrame, log: dict) -> pd.DataFrame:
 
 ORDEM_COLUNAS = [
     "codigoviagem", "pessoa_id", "data_partida", "data_retorno", "ano", "mes", "periodo_covid",
-    "formato_registro", "cargo_codigo", "cargo", "profissao", "funcao", "area_sigla", "funcao_dirigente",
+    "formato_registro", "cargo_codigo", "cargo", "profissao", "funcao", "area_sigla", "area_nome", "diretoria", "funcao_dirigente",
     "motivo", "motivo_principal", "internacional", "n_trechos", "n_diarias", "valor_passagens", "valor_diarias",
     "valor_acrescimos", "valor_hospedagem", "valor_locacao", "valor_total", "valor_total_real", "outlier_valor",
 ]

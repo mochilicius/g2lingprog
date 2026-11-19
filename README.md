@@ -100,6 +100,7 @@ O `app.py` usa a mesma base tratada do artigo e permite explorar os dados por co
 - **Agregação por viagem.** O valor total se repete em cada trecho; somar por linha infla o gasto em 144%.
 - **Cargo por período.** Os códigos de cargo mudam por completo em 2020, então o cargo é analisado separadamente em cada período. A profissão (base de empregados) é a dimensão comparável ao longo do tempo.
 - **Nada é apagado em silêncio.** Outliers e viagens de valor zero são sinalizados, e cada contagem fica em `etl_log.json`.
+- **Setor mapeado à mão.** O portal não tem uma tabela de setores, só a sigla da lotação dos dirigentes no organograma. O nome de cada área e a diretoria a que ela pertence foram digitados manualmente no código (`AREAS` e `DIRETORIAS` em `src/etl.py`), a partir do organograma oficial e da página "Quem é quem" do BNDES. O pipeline para com erro se surgir uma sigla nova.
 - **Privacidade.** Nomes e CPFs (parcialmente mascarados na fonte) são usados só no cruzamento e substituídos por um pseudônimo (`pessoa_id`) antes de gravar a base tratada.
 
 ## Limitações

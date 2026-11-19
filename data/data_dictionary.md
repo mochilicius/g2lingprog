@@ -45,6 +45,8 @@ CSV UTF-8 comprimido com gzip, separador `,`, decimal `.`, datas `AAAA-MM-DD HH:
 | `profissao` | texto | ex.: `Engenheiro`; vazio se não encontrado | Cargo de formação, quando a pessoa está na base atual de empregados (75,8% das viagens) | empregados: `cargo` |
 | `funcao` | texto | ex.: `Gerente`; vazio se não houver | Função executiva atual da pessoa | empregados: `funcao` |
 | `area_sigla` | texto | ex.: `ASC`, `DIR7`; vazio se não for dirigente | Sigla da área do dirigente atual (3,7% das viagens) | organograma: `lotacao` |
+| `area_nome` | texto | ex.: `Área de Soluções para Cidades`; vazio se não for dirigente | Nome completo da área, do mapeamento manual `AREAS` em `src/etl.py` | derivado (manual) |
+| `diretoria` | texto | ex.: `DIR8 · Planejamento e Relações Institucionais`, `Presidência`, `Conselho de Administração` | Diretoria a que a área pertence, do mapeamento manual `DIRETORIAS` | derivado (manual) |
 | `funcao_dirigente` | texto | `Superintendente`, `Diretor`, `Presidente` | Função no organograma | organograma: `funcao` |
 | `motivo` | texto | maiúsculas sem acento | Motivo da viagem normalizado (215 grafias viram 214 categorias) | viagens: `motivoviagem` |
 | `motivo_principal` | texto | maiúsculas sem acento (94 categorias) | Primeiro motivo listado quando há vários (`A / B` → `A`) e rótulos equivalentes unificados: `TREINAMENTO CENTRALIZADO` (até 2019) e `TREINAMENTO NO BRASIL` (2020+) → `TREINAMENTO NACIONAL` | derivado |
@@ -70,7 +72,15 @@ Contagens de cada etapa: trechos lidos por formato, nulos após conversão, viag
 - Em homônimos da base de empregados, prevalece a linha com cargo de formação informado (as duplicatas são diretores que aparecem também com "Não se Aplica").
 - As bases de empregados e organograma são retratos **atuais**: quem saiu do banco não é encontrado, e a área de um dirigente é a de hoje, não a da época da viagem.
 
-## 5. Licenças
+## 5. Setor: mapeamento manual
+
+O portal de dados abertos do BNDES **não tem uma tabela de setores**. O `organograma.csv` traz só a sigla da lotação de cada dirigente, e as bases de viagens e de empregados não informam setor nenhum. Por isso a classificação por setor foi feita **manualmente, no código**: os dicionários `AREAS` e `DIRETORIAS` em `src/etl.py` associam cada uma das 34 siglas ao nome completo da área e à diretoria a que ela pertence, transcritos do Organograma Geral do BNDES e da página [Quem é quem no BNDES](https://www.bndes.gov.br/wps/portal/site/home/quem-somos/quem-e-quem) (atualização de 13/10/2026).
+
+- O pipeline interrompe a execução se o organograma trouxer uma sigla que não esteja no mapeamento, para que uma reestruturação do banco não passe despercebida.
+- A Auditoria Interna (AT) responde ao Conselho de Administração, não a uma diretoria, e aparece como `Conselho de Administração`.
+- A classificação vale só para as viagens dos 34 dirigentes atuais (3,7% do total), porque não existe base pública que ligue os demais empregados a uma área.
+
+## 6. Licenças
 
 - Dados de origem: [Open Database License (ODbL) 1.0](https://opendatacommons.org/licenses/odbl/1-0/), conforme o portal do BNDES. A base tratada é uma obra derivada e é distribuída sob a mesma licença.
 - Código: MIT (arquivo `LICENSE`).

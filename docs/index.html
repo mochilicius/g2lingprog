@@ -315,6 +315,13 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
     valor_total=("valortotalviagemptpbndes", "max"),     # da viagem: repetido em cada trecho
 )</code></pre>
       <p>
+        <strong>Setor mapeado manualmente.</strong> O portal não oferece uma tabela de setores: o organograma informa apenas a sigla
+        da lotação de cada dirigente (ASC, DIR7...), e as bases de viagens e de empregados não trazem setor. Por isso o nome de cada
+        área e a diretoria a que ela pertence foram digitados à mão no código, a partir do Organograma Geral e da página
+        <em>Quem é quem no BNDES</em> (BNDES, 2026d), em dois dicionários (<code>AREAS</code> e <code>DIRETORIAS</code>) que cobrem as 34 siglas.
+        O pipeline interrompe a execução se surgir uma sigla sem mapeamento, de modo que uma reestruturação do banco não passe despercebida.
+      </p>
+      <p>
         Os motivos foram normalizados (maiúsculas, sem acento), e o primeiro motivo listado foi adotado quando o registro traz
         vários. Rótulos que mudaram de nome em 2020 para a mesma atividade (<em>Treinamento centralizado</em> e <em>Treinamento no
         Brasil</em>) foram unificados como <em>Treinamento nacional</em>; sem isso, a categoria pareceria ter sido extinta pela pandemia.
@@ -453,6 +460,19 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         <a href="assets/fig_area.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_area.png" alt="Barras horizontais de viagens e gasto real por área da liderança, com superintendências em azul e diretorias em laranja" loading="lazy"></a>
         <figcaption>Figura 5: Viagens e gasto real dos dirigentes atuais, por área (sigla do organograma).</figcaption>
       </figure>
+      <p>
+        Agrupando as áreas pelas diretorias a que pertencem (Figura 6), a DIR8, de Planejamento e Relações Institucionais, concentra o
+        maior gasto da liderança (R$&nbsp;6,0 milhões, com cinco dirigentes), seguida da DIR7, de Desenvolvimento Produtivo, Inovação e
+        Comércio Exterior, e da DIR5, de Infraestrutura e Mudança Climática. Na outra ponta, os dirigentes da DIR9, de Risco e Compliance,
+        são os que menos viajam: 49 viagens por dirigente, contra mais de 200 nas DIR2, DIR7 e DIR8. O padrão é coerente com a natureza
+        das áreas: as que se relacionam com governos, clientes e projetos fora da sede viajam mais que as de controle interno. Como as
+        viagens de cada dirigente cobrem toda a sua trajetória no banco, inclusive antes do cargo atual, o agrupamento mostra o perfil de
+        quem lidera cada diretoria hoje, e não o gasto da diretoria ao longo do tempo.
+      </p>
+      <figure>
+        <a href="assets/fig_diretoria.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_diretoria.png" alt="Barras horizontais com o gasto real e as viagens por dirigente de cada diretoria do BNDES; DIR8 lidera o gasto e DIR9 tem o menor número de viagens por dirigente" loading="lazy"></a>
+        <figcaption>Figura 6: Gasto real e viagens por dirigente, agrupados por diretoria (áreas mapeadas manualmente a partir do organograma).</figcaption>
+      </figure>
 
       <p>
         <strong>Por motivo.</strong> Acompanhamento de projeto (20% das viagens) e reuniões em órgãos governamentais (18%) são os
@@ -462,13 +482,13 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
 
       <h3 class="sub">3.3 RQ3: o efeito da pandemia</h3>
       <p>
-        A Figura 6 mostra a série mensal. As viagens já vinham caindo antes da pandemia, de 13,0 mil em 2011 para 7,7 mil em 2019 (−41%),
+        A Figura 7 mostra a série mensal. As viagens já vinham caindo antes da pandemia, de 13,0 mil em 2011 para 7,7 mil em 2019 (−41%),
         mas a ruptura de 2020 é de outra ordem: entre abril e junho de 2020 não há nenhuma viagem registrada, e o ano fecha 82% abaixo
         de 2019. Em 2021 a queda chega a 88%, e só 229 pessoas viajaram, contra 1.540 em 2019 (Tabela 3).
       </p>
       <figure>
         <a href="assets/fig_serie_mensal.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_serie_mensal.png" alt="Série mensal de viagens de 2009 a 2026 com média móvel de 12 meses e faixa destacando a pandemia" loading="lazy"></a>
-        <figcaption>Figura 6: Viagens iniciadas por mês e média móvel de 12 meses; faixa laranja = pandemia (mar/2020 a dez/2021).</figcaption>
+        <figcaption>Figura 7: Viagens iniciadas por mês e média móvel de 12 meses; faixa laranja = pandemia (mar/2020 a dez/2021).</figcaption>
       </figure>
       <div class="table-wrap">
         <table>
@@ -488,7 +508,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         <p class="table-caption">Tabela 3: Volume, pessoas e custo das viagens antes, durante e depois da pandemia (valores reais de out/2026).</p>
       </div>
       <p>
-        A pandemia não afetou os motivos da mesma forma (Figura 7). Congressos, feiras e seminários caíram 97%, e treinamentos, 95%:
+        A pandemia não afetou os motivos da mesma forma (Figura 8). Congressos, feiras e seminários caíram 97%, e treinamentos, 95%:
         são atividades que podem ser feitas a distância, embora os dados não registrem o formato em que ocorreram. Reuniões nos escritórios regionais foram as que menos caíram (−61%) e,
         em 2023, quase dobraram em relação a 2019 (737 contra 372). Congressos voltaram rapidamente (−8% em 2023), mas fomento (−59%),
         acompanhamento de projeto (−44%) e treinamento (−54%) seguiam bem abaixo do nível anterior, o que sugere que parte dessas
@@ -496,10 +516,10 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
       </p>
       <figure>
         <a href="assets/fig_motivos_pandemia.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_motivos_pandemia.png" alt="Gráfico de pontos comparando viagens por motivo em 2019, na média de 2020–21 e em 2023" loading="lazy"></a>
-        <figcaption>Figura 7: Viagens por motivo em 2019, na média anual de 2020–21 e em 2023 (dez maiores motivos de 2019).</figcaption>
+        <figcaption>Figura 8: Viagens por motivo em 2019, na média anual de 2020–21 e em 2023 (dez maiores motivos de 2019).</figcaption>
       </figure>
       <p>
-        O custo seguiu o caminho oposto ao do volume (Figura 8). Em valores reais, a viagem mediana passou de R$&nbsp;2.494 em 2019 para
+        O custo seguiu o caminho oposto ao do volume (Figura 9). Em valores reais, a viagem mediana passou de R$&nbsp;2.494 em 2019 para
         R$&nbsp;3.725 em 2023 (+49%) e R$&nbsp;3.439 em 2025 (+38%), e o gasto anual de 2025 (R$&nbsp;30,6 milhões) já supera o de 2019, com menos
         viagens. A correção pelo IPCA descarta a inflação como explicação, mas esse salto coincide com a mudança no formato de registro,
         em que o total passa a incluir itens não detalhados nas colunas de componentes; por isso não é possível separar com segurança
@@ -507,7 +527,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
       </p>
       <figure>
         <a href="assets/fig_gasto_anual.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_gasto_anual.png" alt="Barras de gasto real anual de 2009 a 2025, com 2020 e 2021 em laranja, e linha do custo mediano por viagem" loading="lazy"></a>
-        <figcaption>Figura 8: Gasto real anual (barras) e custo mediano real por viagem (linha), 2009–2025.</figcaption>
+        <figcaption>Figura 9: Gasto real anual (barras) e custo mediano real por viagem (linha), 2009–2025.</figcaption>
       </figure>
     </section>
 
@@ -525,8 +545,8 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         não.
       </p>
       <p>
-        <strong>Limitações.</strong> O portal não publica a lotação de todos os empregados, e a análise por área cobre só a liderança
-        atual. As bases de empregados e organograma são retratos de hoje, o que reduz a cobertura nos anos antigos e atribui a cada
+        <strong>Limitações.</strong> O portal não publica a lotação de todos os empregados nem uma tabela de setores; a análise por
+        área cobre só a liderança atual, e o nome das áreas e das diretorias foi mapeado manualmente a partir do organograma. As bases de empregados e organograma são retratos de hoje, o que reduz a cobertura nos anos antigos e atribui a cada
         dirigente a área atual, não a da época da viagem. Os cruzamentos por nome podem falhar em grafias divergentes. A mudança de
         formato de 2020 impede comparar cargos entre os períodos e torna a comparação de custos menos precisa.
       </p>
@@ -566,6 +586,7 @@ jupyter nbconvert --to notebook --execute --inplace notebooks/analise_explorator
         <li>BNDES. <strong>Despesas viagens</strong>. Rio de Janeiro: Portal de Dados Abertos do BNDES, 2026a. Disponível em: https://dadosabertos.bndes.gov.br/dataset/despesas-viagens. Acesso em: 12 nov. 2026.</li>
         <li>BNDES. <strong>Empregados e Estagiários do BNDES</strong>. Rio de Janeiro: Portal de Dados Abertos do BNDES, 2026b. Disponível em: https://dadosabertos.bndes.gov.br/dataset/empregados. Acesso em: 12 nov. 2026.</li>
         <li>BNDES. <strong>Organograma</strong>. Rio de Janeiro: Portal de Dados Abertos do BNDES, 2026c. Disponível em: https://dadosabertos.bndes.gov.br/dataset/organograma. Acesso em: 12 nov. 2026.</li>
+        <li>BNDES. <strong>Quem é quem no BNDES</strong>. Rio de Janeiro, 2026d. Disponível em: https://www.bndes.gov.br/wps/portal/site/home/quem-somos/quem-e-quem. Acesso em: 19 nov. 2026.</li>
         <li>HARRIS, Charles R. et al. Array programming with NumPy. <strong>Nature</strong>, v. 585, p. 357–362, 2020.</li>
         <li>HUNTER, John D. Matplotlib: a 2D graphics environment. <strong>Computing in Science &amp; Engineering</strong>, v. 9, n. 3, p. 90–95, 2007.</li>
         <li>McKINNEY, Wes. <strong>Python for data analysis</strong>: data wrangling with pandas, NumPy, and Jupyter. 3. ed. Sebastopol: O'Reilly Media, 2022.</li>

@@ -20,6 +20,7 @@
   "homonimos_empregados": 4,
   "cobertura_profissao": 0.7581,
   "cobertura_area_organograma": 0.0368,
+  "areas_mapeadas_manualmente": 34,
   "pessoas_distintas": 5480,
   "ipca_mes_base": "2026-10",
   "limite_outlier_valor": {
