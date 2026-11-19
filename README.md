@@ -12,6 +12,7 @@
 **Professor orientador:** Alexandre Neves Louzada
 
 📄 **Artigo:** [docs/index.html](docs/index.html), publicado no GitHub Pages
+📊 **Dashboard interativo:** `app.py` (Streamlit), link de publicação abaixo
 
 ## Resumo executivo
 
@@ -53,6 +54,7 @@ source .venv/bin/activate            # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 python -m src.etl                    # baixa as bases e gera data/processed/viagens.csv.gz
+streamlit run app.py                 # abre o dashboard interativo no navegador
 jupyter nbconvert --to notebook --execute --inplace notebooks/analise_exploratoria.ipynb   # refaz a análise e as figuras
 ```
 
@@ -66,6 +68,7 @@ g2lingprog/
 ├── LICENSE                          # MIT (código)
 ├── requirements.txt                 # pip freeze, versões fixas
 ├── .gitignore
+├── app.py                           # dashboard interativo (Streamlit)
 ├── data/
 │   ├── raw/                         # bases originais (a de viagens é baixada pelo pipeline)
 │   ├── processed/
@@ -81,6 +84,15 @@ g2lingprog/
     ├── index.html                   # artigo (GitHub Pages)
     └── assets/                      # figuras exportadas pelo notebook
 ```
+
+## Dashboard interativo
+
+O `app.py` usa a mesma base tratada do artigo e permite explorar os dados por conta própria:
+
+- filtros por período, motivo, profissão, destino (nacional ou internacional) e valores reais ou nominais;
+- indicadores que se recalculam a cada filtro (viagens, pessoas, gasto, custo mediano, viagens por pessoa);
+- abas de visão geral, profissões, cargos, áreas da liderança, motivos, pandemia e dados (com download em CSV);
+- na aba **Cargos**, a comparação "uma viagem de X equivale a quantas de Y" e "uma pessoa de X gasta quantas vezes uma de Y", com o cargo de referência escolhido por quem usa.
 
 ## Decisões do tratamento
 
