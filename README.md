@@ -12,7 +12,7 @@
 **Professor orientador:** Alexandre Neves Louzada
 
 📄 **Artigo:** [docs/index.html](docs/index.html), publicado no GitHub Pages
-📊 **Dashboard interativo:** `app.py` (Streamlit), link de publicação abaixo
+📊 **Dashboard interativo:** https://g2lingprogpoggi.streamlit.app/ (código em `app.py`)
 
 ## Resumo executivo
 
