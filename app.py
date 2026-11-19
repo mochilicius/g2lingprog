@@ -32,6 +32,8 @@ ROTULO_MOTIVO = {
     "PARTICIPACAO EM SEMINARIO PROMOVIDO PELO BANCO": "Seminário promovido pelo banco",
     "MEDIDA JUDICIAL": "Medida judicial",
     "PRE-ANALISE": "Pré-análise",
+    "INTERNACIONAL SERVICO GVIG": "Viagem internacional a serviço",
+    "INTERNACIONAL TREINAMENTO GVIG": "Treinamento internacional",
 }
 
 
@@ -73,7 +75,7 @@ def numero(valor: float, casas: int = 0) -> str:
 
 def plural(valor: float, singular: str, plural_: str) -> str:
     """Em português, valores abaixo de 2 pedem singular: '1,18 viagem', '1,5 vez'."""
-    return singular if abs(valor) < 2 else plural_
+    return singular if abs(round(valor, 2)) < 2 else plural_  # decide pelo número que aparece na tela
 
 
 df = carregar(versao_dos_dados())
@@ -215,6 +217,115 @@ if anos[0] <= 2019 < 2020 <= anos[1]:
         "e o total passa a incluir itens não detalhados. Compare custos entre os dois períodos com cautela.",
         icon="ℹ️",
     )
+
+# ---------------- DESTAQUES ----------------
+# frases montadas a partir da seleção atual: mudam junto com os filtros da barra lateral
+def resumo_por(base, chave, minimo_viagens):
+    """Viagens, pessoas e gasto por grupo, só com grupos que têm viagens suficientes para comparar."""
+    g = base.groupby(chave).agg(viagens=("codigoviagem", "size"), pessoas=("pessoa_id", "nunique"),
+                                gasto=(COL_VALOR, "sum"), custo_medio=(COL_VALOR, "mean"))
+    g = g[g["viagens"] >= minimo_viagens]
+    g["gasto_por_pessoa"] = g["gasto"] / g["pessoas"]
+    g["viagens_por_pessoa"] = g["viagens"] / g["pessoas"]
+    return g
+
+
+destaques = []
+
+# área da liderança (só superintendências: as siglas DIRn e PRESI são as próprias diretorias e entram no destaque seguinte)
+lider = d.dropna(subset=["area_sigla"])
+superint = lider[~lider["area_sigla"].str.match(r"^(DIR\d|PRESI)$")]
+areas = resumo_por(superint, ["area_sigla", "area_nome", "diretoria"], 20)
+if len(areas) >= 2:
+    mais_viaja = areas["viagens"].idxmax()
+    mais_cara = areas["custo_medio"].idxmax()
+    frase = (f"**A área que mais viaja é {mais_viaja[0]}** ({mais_viaja[1]}, {mais_viaja[2]}): "
+             f"{numero(areas.loc[mais_viaja, 'viagens'])} viagens dos seus dirigentes, que somam {reais(areas.loc[mais_viaja, 'gasto'])}.")
+    if mais_cara != mais_viaja:
+        frase += (f" **Porém, a viagem mais cara é a de {mais_cara[0]}** ({mais_cara[1]}): "
+                  f"{reais(areas.loc[mais_cara, 'custo_medio'])} em média, contra {reais(areas.loc[mais_viaja, 'custo_medio'])} na {mais_viaja[0]}.")
+    destaques.append(("🏢", frase))
+
+# diretoria
+dirs = resumo_por(lider, "diretoria", 20)
+if len(dirs) >= 2:
+    mais_gasta, menos_viaja = dirs["gasto"].idxmax(), dirs["viagens_por_pessoa"].idxmin()
+    frase = (f"**A diretoria que mais gasta é a {mais_gasta}**, com {reais(dirs.loc[mais_gasta, 'gasto'])} "
+             f"e {numero(dirs.loc[mais_gasta, 'viagens_por_pessoa'])} viagens por dirigente.")
+    if menos_viaja != mais_gasta:
+        frase += (f" **Já a {menos_viaja} é a que menos viaja:** {numero(dirs.loc[menos_viaja, 'viagens_por_pessoa'])} "
+                  f"viagens por dirigente.")
+    destaques.append(("🧭", frase))
+
+# cargo (um destaque por período, porque os códigos mudam em 2020)
+for formato in sorted(d["formato_registro"].unique()):
+    base_cargo = d[(d["formato_registro"] == formato) & (d[COL_VALOR] > 0) & ~d["cargo"].isin(SEM_CARGO)]
+    cargos = resumo_por(base_cargo, "cargo", 100)
+    if len(cargos) < 2:
+        continue
+    total = cargos["gasto"].idxmax()
+    # no "por pessoa", só cargos com 5+ pessoas: com 1 ou 2 pessoas a média vira retrato individual
+    comparaveis = cargos[cargos["pessoas"] >= 5]
+    por_pessoa = comparaveis["gasto_por_pessoa"].idxmax() if not comparaveis.empty else total
+    frase = (f"**{formato}: o cargo que mais gasta no total é {total}** ({reais(cargos.loc[total, 'gasto'])}, "
+             f"com {numero(cargos.loc[total, 'pessoas'])} pessoas viajando).")
+    if por_pessoa != total:
+        razao_pessoa = cargos.loc[por_pessoa, "gasto_por_pessoa"] / cargos.loc[total, "gasto_por_pessoa"]
+        razao_viagem = cargos.loc[por_pessoa, "custo_medio"] / cargos.loc[total, "custo_medio"]
+        razao_freq = cargos.loc[por_pessoa, "viagens_por_pessoa"] / cargos.loc[total, "viagens_por_pessoa"]
+        frase += (f" **Porém, por pessoa quem mais gasta é {por_pessoa}:** {reais(cargos.loc[por_pessoa, 'gasto_por_pessoa'])} cada, "
+                  f"{numero(razao_pessoa, 1)} {plural(razao_pessoa, 'vez', 'vezes')} o de {total}. "
+                  f"Uma viagem de {por_pessoa} vale {numero(razao_viagem, 2)} {plural(razao_viagem, 'viagem', 'viagens')} de {total}, ")
+        if razao_freq > razao_viagem:
+            frase += (f"mas o que mais pesa é a frequência: {numero(cargos.loc[por_pessoa, 'viagens_por_pessoa'], 1)} viagens por pessoa, "
+                      f"contra {numero(cargos.loc[total, 'viagens_por_pessoa'], 1)}.")
+        else:
+            frase += (f"e é esse preço mais alto que pesa mais do que a frequência "
+                      f"({numero(cargos.loc[por_pessoa, 'viagens_por_pessoa'], 1)} viagens por pessoa, "
+                      f"contra {numero(cargos.loc[total, 'viagens_por_pessoa'], 1)}).")
+    destaques.append(("💼", frase))
+
+# profissão
+profs = resumo_por(d[d["profissao"] != "Não identificada"], "profissao", 100)
+profs = profs[profs["pessoas"] >= 5]
+if len(profs) >= 2:
+    mais_viaja, mais_pp = profs["viagens"].idxmax(), profs["viagens_por_pessoa"].idxmax()
+    frase = (f"**A profissão que mais viaja é {mais_viaja}:** {numero(profs.loc[mais_viaja, 'viagens'])} viagens, "
+             f"{numero(profs.loc[mais_viaja, 'gasto'] / profs['gasto'].sum() * 100)}% do gasto das profissões identificadas.")
+    if mais_pp != mais_viaja:
+        frase += (f" **Por pessoa, porém, quem mais viaja é {mais_pp}**, com {numero(profs.loc[mais_pp, 'viagens_por_pessoa'], 1)} "
+                  f"viagens cada, contra {numero(profs.loc[mais_viaja, 'viagens_por_pessoa'], 1)}.")
+    else:
+        frase += f" Também lidera por pessoa: {numero(profs.loc[mais_viaja, 'viagens_por_pessoa'], 1)} viagens cada."
+    destaques.append(("👷", frase))
+
+# motivo
+mots = resumo_por(d, "motivo_exibicao", 100)
+if len(mots) >= 2:
+    freq, caro = mots["viagens"].idxmax(), mots["custo_medio"].idxmax()
+    minuscula = lambda t: t[0].lower() + t[1:]
+    frase = (f"**O motivo mais comum é {minuscula(freq)}** ({numero(mots.loc[freq, 'viagens'] / len(d) * 100)}% das viagens).")
+    if caro != freq:
+        frase += (f" **Porém, o mais caro por viagem é {minuscula(caro)}:** {reais(mots.loc[caro, 'custo_medio'])} em média, "
+                  f"contra {reais(mots.loc[freq, 'custo_medio'])}.")
+    destaques.append(("🎯", frase))
+
+# pandemia (só quando 2019 e 2021 estão na seleção)
+por_ano_sel = d.groupby("ano").size()
+if {2019, 2021}.issubset(por_ano_sel.index):
+    queda = (por_ano_sel[2021] / por_ano_sel[2019] - 1) * 100
+    frase = f"**Na pandemia, as viagens caíram {numero(abs(queda))}%** de 2019 para 2021."
+    if 2025 in por_ano_sel.index:
+        rec = (por_ano_sel[2025] / por_ano_sel[2019] - 1) * 100
+        frase += f" Em 2025 o volume está {numero(abs(rec))}% {'abaixo' if rec < 0 else 'acima'} de 2019."
+    destaques.append(("🦠", frase))
+
+if destaques:
+    st.markdown("### Destaques")
+    st.caption("Calculados a partir dos filtros atuais. Comparações exigem pelo menos 100 viagens por grupo (20 nas áreas da liderança).")
+    with st.container(border=True):
+        for icone, frase in destaques:
+            st.markdown(f"{icone} {frase}")
 
 abas = st.tabs(["Visão geral", "Profissões", "Cargos", "Áreas da liderança", "Motivos", "Pandemia", "Dados"])
 
