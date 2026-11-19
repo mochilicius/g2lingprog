@@ -36,12 +36,25 @@ ROTULO_MOTIVO = {
 
 
 # ---------------- DADOS ----------------
+CAMINHO_DADOS = etl.PROCESSED_DIR / "viagens.csv.gz"
+
+
+def versao_dos_dados() -> str:
+    """Identifica a versão do arquivo tratado: quando ele muda (novo deploy), o cache abaixo é refeito."""
+    if not CAMINHO_DADOS.exists():
+        return "ausente"
+    info = CAMINHO_DADOS.stat()
+    return f"{info.st_size}-{info.st_mtime_ns}"
+
+
 @st.cache_data
-def carregar():
-    caminho = etl.PROCESSED_DIR / "viagens.csv.gz"
-    if not caminho.exists():
+def carregar(versao: str):  # 'versao' entra na chave do cache: sem ela, um deploy novo reaproveitaria a tabela antiga
+    if not CAMINHO_DADOS.exists():
         etl.executar_pipeline()
-    df = etl.carregar_processado(caminho)
+    df = etl.carregar_processado(CAMINHO_DADOS)
+    # área e diretoria vêm do mapeamento manual do etl; recalcular aqui garante as colunas mesmo numa base antiga
+    df["area_nome"] = df["area_sigla"].map(lambda s: etl.AREAS[s][0] if s in etl.AREAS else None)
+    df["diretoria"] = df["area_sigla"].map(lambda s: etl.DIRETORIAS[etl.AREAS[s][1]] if s in etl.AREAS else None)
     df["profissao"] = df["profissao"].fillna("Não identificada")
     df["motivo_exibicao"] = df["motivo_principal"].map(lambda m: ROTULO_MOTIVO.get(m, m.capitalize()))
     return df
@@ -63,7 +76,7 @@ def plural(valor: float, singular: str, plural_: str) -> str:
     return singular if abs(valor) < 2 else plural_
 
 
-df = carregar()
+df = carregar(versao_dos_dados())
 
 # ---------------- FILTROS ----------------
 st.sidebar.title("Filtros")
