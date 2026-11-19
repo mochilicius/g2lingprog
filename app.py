@@ -187,7 +187,101 @@ enfeites = (
     + brilho(CORACAO, "#c7a8f5", "bottom:24px;right:16%;width:20px;animation-delay:1.6s;")
 )
 
+# ---------------- TEMAS SECRETOS ----------------
+# Os botões com o nome das autoras (logo abaixo do cabeçalho) trocam o tema. O clique roda o callback antes
+# do rerun, então aqui o tema escolhido já está no session_state.
+if "tema" not in st.session_state:
+    st.session_state.tema = None
+
+
+def alternar_tema(tema):
+    st.session_state.tema = None if st.session_state.tema == tema else tema
+
+
+TEMA = st.session_state.tema
+
+# desenhos originais em SVG
+CEREJA = """<svg viewBox="0 0 64 64"><path d="M30 6c-2 10-8 20-16 28M30 6c4 12 10 20 18 26" fill="none" stroke="#3f8f52" stroke-width="3.5" stroke-linecap="round"/><path d="M30 6c8-6 20-4 24 4-9 3-17 1-24-4z" fill="#7fd08a" stroke="#3f8f52" stroke-width="2.5"/><circle cx="16" cy="44" r="13" fill="#e8336d" stroke="#8e1840" stroke-width="3"/><circle cx="46" cy="42" r="13" fill="#e8336d" stroke="#8e1840" stroke-width="3"/><ellipse cx="11" cy="39" rx="3.5" ry="2.5" fill="#fff" opacity=".75"/><ellipse cx="41" cy="37" rx="3.5" ry="2.5" fill="#fff" opacity=".75"/><circle cx="13" cy="46" r="1.6" fill="#4a1026"/><circle cx="20" cy="46" r="1.6" fill="#4a1026"/><circle cx="43" cy="44" r="1.6" fill="#4a1026"/><circle cx="50" cy="44" r="1.6" fill="#4a1026"/></svg>"""
+MORCEGO = """<svg viewBox="0 0 80 40"><path d="M40 14c-3-5-8-6-8-6s1 5 3 7c-6-4-14-10-30-8 6 3 8 8 8 13 4-3 9-3 12 0 1-3 5-4 7-2 2 3 5 5 8 5s6-2 8-5c2-2 6-1 7 2 3-3 8-3 12 0 0-5 2-10 8-13-16-2-24 4-30 8 2-2 3-7 3-7s-5 1-8 6z" fill="#120a1c"/><circle cx="36" cy="18" r="1.8" fill="#ff7ac6"/><circle cx="44" cy="18" r="1.8" fill="#ff7ac6"/></svg>"""
+COELHO = """<svg viewBox="0 0 64 72"><path d="M20 30C14 14 16 2 22 2s9 12 8 26M44 30c6-16 4-28-2-28s-9 12-8 26" fill="#fff" stroke="#e8508f" stroke-width="3"/><ellipse cx="32" cy="46" rx="24" ry="21" fill="#fff" stroke="#e8508f" stroke-width="3"/><ellipse cx="23" cy="45" rx="3.5" ry="4.5" fill="#5a2a45"/><ellipse cx="41" cy="45" rx="3.5" ry="4.5" fill="#5a2a45"/><ellipse cx="16" cy="53" rx="5" ry="3" fill="#ffb3d1"/><ellipse cx="48" cy="53" rx="5" ry="3" fill="#ffb3d1"/><path d="M29 52q3 3 6 0" stroke="#5a2a45" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>"""
+MORANGO = """<svg viewBox="0 0 48 56"><path d="M24 14C10 14 4 22 6 32c2 12 12 21 18 22 6-1 16-10 18-22 2-10-4-18-18-18z" fill="#ff6f9f" stroke="#c23d6c" stroke-width="2.5"/><path d="M24 16c-4-6-12-6-14-3 5 0 7 3 8 5-5-1-9 1-10 4 7-2 12-2 16-2 4 0 9 0 16 2-1-3-5-5-10-4 1-2 3-5 8-5-2-3-10-3-14 3z" fill="#7fd08a" stroke="#3f8f52" stroke-width="2"/><g fill="#ffe9a8"><ellipse cx="17" cy="28" rx="1.5" ry="2"/><ellipse cx="27" cy="26" rx="1.5" ry="2"/><ellipse cx="33" cy="33" rx="1.5" ry="2"/><ellipse cx="20" cy="37" rx="1.5" ry="2"/></g></svg>"""
+FLOR = """<svg viewBox="0 0 48 48"><g fill="#fff" stroke="#ff9cc2" stroke-width="2.5"><circle cx="24" cy="11" r="9"/><circle cx="37" cy="21" r="9"/><circle cx="32" cy="36" r="9"/><circle cx="16" cy="36" r="9"/><circle cx="11" cy="21" r="9"/></g><circle cx="24" cy="25" r="7" fill="#ffd36e" stroke="#e8a83a" stroke-width="2"/></svg>"""
+CORACAO_SVG = lambda cor: f'<svg viewBox="0 0 40 36"><path d="M20 34C6 24 2 17 2 11a9 9 0 0 1 18-3 9 9 0 0 1 18 3c0 6-4 13-18 23z" fill="{cor}"/></svg>'
+
+ENFEITES_TEMA = {
+    "gotico": [(CEREJA, "top:14%;left:1.5%;width:52px"), (MORCEGO, "top:30%;right:1.5%;width:76px;animation-delay:-2s"),
+               (CORACAO_SVG("#ff7ac6"), "top:52%;left:1.2%;width:26px;animation-delay:-1s"),
+               (CEREJA, "bottom:12%;right:1.5%;width:48px;animation-delay:-4s"), (MORCEGO, "bottom:28%;left:1.2%;width:62px;animation-delay:-3s"),
+               (CORACAO_SVG("#b08cff"), "top:72%;right:2%;width:22px;animation-delay:-2s")],
+    "rosa": [(COELHO, "top:14%;left:1.5%;width:52px"), (MORANGO, "top:30%;right:1.5%;width:40px;animation-delay:-2s"),
+             (FLOR, "top:52%;left:1.2%;width:34px;animation-delay:-1s"), (COELHO, "bottom:12%;right:1.5%;width:48px;animation-delay:-4s"),
+             (MORANGO, "bottom:28%;left:1.2%;width:36px;animation-delay:-3s"), (CORACAO_SVG("#ff9cc2"), "top:72%;right:2%;width:24px;animation-delay:-2s")],
+}
+CARTINHA = {
+    "gotico": ("https://www.sanrio.co.jp/wp-content/uploads/2022/06/gallery-kuromi1.png", "Kuromi", "🦇 tema da Giovanna",
+               "Kuromi, personagem da Sanrio, piscando o olho ao lado de um bichinho de pelúcia, em fundo preto com estrelas"),
+    "rosa": ("https://www.sanrio.co.jp/wp-content/uploads/2022/06/gallery-mymelody1.png", "My Melody", "🍓 tema da Juliana",
+             "My Melody, personagem da Sanrio, dançando balé numa moldura de rosas em fundo rosa"),
+}
+
+CSS_TEMA = {
+    "gotico": """
+  .stApp { background-color: #1c1129 !important;
+    background-image: radial-gradient(#3a2252 2.5px, transparent 2.5px), radial-gradient(#2e1a42 2.5px, transparent 2.5px) !important; }
+  [data-testid="stSidebar"] { background: #2a1638 !important; }
+  [data-testid="stSidebar"] h1, [data-testid="stSidebar"] label, [data-testid="stSidebar"] p,
+  [data-testid="stSidebar"] [data-testid="stCaptionContainer"] { color: #f2e6ff !important; }
+  [data-testid="stSidebar"] [data-baseweb="select"] p, [data-testid="stSidebar"] [data-baseweb="select"] span { color: #4a2d4f !important; }
+  .kawaii-topo { background: linear-gradient(135deg, #2b173f 0%, #4b2370 55%, #8a3a8f 100%) !important; box-shadow: 0 8px 0 #120a1c !important; }
+  .kawaii-topo h1, .kawaii-topo p { color: #fbefff !important; }
+  .kawaii-topo .etiqueta { background: #2a1638 !important; color: #ff9fd4 !important; }
+  .cartinha-st { background: #2a1638 !important; } .cartinha-st figcaption { color: #e7d4f7 !important; }
+""",
+    "rosa": """
+  .stApp { background-color: #fff0f6 !important;
+    background-image: radial-gradient(#ffd3e4 2.5px, transparent 2.5px), radial-gradient(#ffe6ef 2.5px, transparent 2.5px) !important; }
+  [data-testid="stSidebar"] { background: #ffe3ef !important; }
+  .kawaii-topo { background: linear-gradient(135deg, #ffd6e7 0%, #ffb3d1 50%, #ffe3ec 100%) !important; box-shadow: 0 8px 0 #ffc4dc !important; }
+""",
+}
+
+if TEMA:
+    decor = "".join(f'<div class="enfeite-st" style="{estilo}">{svg}</div>' for svg, estilo in ENFEITES_TEMA[TEMA])
+    st.markdown(f"""
+<style>
+  {CSS_TEMA[TEMA]}
+  [data-testid="stHeader"] {{ background: transparent !important; }}
+  /* o conteúdo vira um painel claro: gráficos e tabelas do Streamlit não mudam de cor com o tema */
+  .block-container {{ position: relative; z-index: 1; background: rgba(255, 250, 253, .97); border-radius: 32px;
+    padding: 2rem 2.2rem 3rem !important; margin-top: 3.2rem; margin-bottom: 2rem; box-shadow: 0 20px 60px rgba(30, 10, 50, .25); }}
+  .enfeite-st {{ position: fixed; z-index: 0; pointer-events: none; animation: flutua-st 7s ease-in-out infinite; }}
+  .enfeite-st svg {{ width: 100%; height: auto; display: block; }}
+  @keyframes flutua-st {{ 50% {{ transform: translateY(-14px) rotate(6deg); }} }}
+  @media (prefers-reduced-motion: reduce) {{ .enfeite-st {{ animation: none; }} }}
+  @media (max-width: 760px) {{ .enfeite-st {{ display: none; }} .block-container {{ padding: 1.2rem .9rem 2rem !important; border-radius: 22px; }} }}
+</style>
+<div aria-hidden="true">{decor}</div>
+""", unsafe_allow_html=True)
+
+cartinha_html = ""
+if TEMA:
+    url, nome, legenda, alt = CARTINHA[TEMA]
+    cartinha_html = f"""<figure class="cartinha-st"><img src="{url}" alt="{alt}" referrerpolicy="no-referrer">
+    <figcaption><strong>{nome}</strong> {legenda}<br>© Sanrio · imagem de sanrio.co.jp</figcaption></figure>"""
+
 st.markdown(f"""
+<style>
+  .cartinha-st {{ position: absolute; right: 22px; bottom: 18px; width: 128px; margin: 0; padding: 7px 7px 5px; background: #fff;
+    border-radius: 14px; box-shadow: 0 14px 30px rgba(40, 10, 60, .28); transform: rotate(5deg); animation: chega-st .6s cubic-bezier(.2, 1.4, .5, 1); }}
+  .cartinha-st img {{ display: block; width: 100%; height: auto; border-radius: 9px; }}
+  .cartinha-st figcaption {{ margin-top: 3px; font-size: .62rem; line-height: 1.25; color: #6b5a78; text-align: center; }}
+  @keyframes chega-st {{ from {{ opacity: 0; transform: translateY(20px) rotate(-6deg) scale(.85); }} }}
+  .kawaii-topo:has(.cartinha-st) {{ padding-left: 165px; padding-right: 165px; }}
+  @media (max-width: 760px) {{
+    .cartinha-st {{ position: static; margin: 14px auto 0; transform: none; }}
+    .kawaii-topo:has(.cartinha-st) {{ padding-left: 20px; padding-right: 20px; }}
+  }}
+</style>
 <div class="kawaii-topo">
   {enfeites}
   {MASCOTE}
@@ -196,8 +290,20 @@ st.markdown(f"""
   <p>Quem viaja, quem gasta e o efeito da pandemia de COVID-19.</p>
   <p><strong>Giovanna Poggi e Juliana Neto</strong> · Prof. Alexandre Neves Louzada<br>
   Linguagem de Programação (Análise e Visualização de Dados com Python) · UniLaSalle-RJ · 2026.2</p>
+  {cartinha_html}
 </div>
 """, unsafe_allow_html=True)
+
+col_g, col_j, col_dica = st.columns([1, 1, 2.4], vertical_alignment="center")
+col_g.button("🦇 Giovanna Poggi", on_click=alternar_tema, args=("gotico",),
+             type="primary" if TEMA == "gotico" else "secondary", help="Tema secreto da Giovanna")
+col_j.button("🍓 Juliana Neto", on_click=alternar_tema, args=("rosa",),
+             type="primary" if TEMA == "rosa" else "secondary", help="Tema secreto da Juliana")
+col_dica.caption({
+    None: "✨ Clique no nome de uma autora para descobrir um tema secreto.",
+    "gotico": "Tema secreto da Giovanna: kawaii gótico 🦇 Clique de novo no nome para voltar.",
+    "rosa": "Tema secreto da Juliana: kawaii rosa 🍓 Clique de novo no nome para voltar.",
+}[TEMA])
 
 if d.empty:
     st.warning("Nenhuma viagem com esses filtros. Tente ampliar o período ou limpar algum filtro.")
