@@ -183,7 +183,20 @@ body.tema-rosa {
   --code-bg: #6a2e4f; --table-head: #ffe3ef;
 }
 body.tema-rosa #enfeites-rosa { opacity: .85; }
-body.tema-gotico .theme-caption.gotico, body.tema-rosa .theme-caption.rosa { opacity: 1; transform: none; }
+/* cartinhas com as personagens: imagens oficiais da Sanrio, carregadas do site sanrio.co.jp (não ficam no repositório).
+   Com display: none + loading="lazy", o navegador só baixa a imagem quando o tema é ativado. */
+.cartinha {
+  display: none; position: absolute; right: 0; bottom: 56px; width: 200px; margin: 0; padding: 10px 10px 8px;
+  background: #fff; border-radius: 18px; box-shadow: 0 18px 40px rgba(40, 10, 60, .28); transform: rotate(4deg);
+  animation: chega .6s cubic-bezier(.2, 1.4, .5, 1);
+}
+.cartinha img { display: block; width: 100%; height: auto; border-radius: 12px; }
+.cartinha figcaption { margin-top: .35rem; font-size: .72rem; line-height: 1.3; color: #6b5a78; text-align: center; }
+.cartinha figcaption strong { color: var(--accent); }
+@keyframes chega { from { opacity: 0; transform: translateY(24px) rotate(-6deg) scale(.85); } }
+body.tema-gotico .cartinha.gotico, body.tema-rosa .cartinha.rosa { display: block; }
+body.tema-gotico .cartinha { background: #2a1638; }
+body.tema-gotico .cartinha figcaption { color: #e7d4f7; }
 
 /* modo conforto e movimento reduzido: sem animações nem enfeites */
 body.comfort-mode .theme-layer { display: none; }
@@ -196,7 +209,7 @@ body.comfort-mode *, body.comfort-mode *::before, body.comfort-mode *::after { a
   body { font-size: 16px; }
   .section-nav { border-radius: 20px; }
   .comfort-button { margin-left: 0; }
-  .theme-caption { position: static; display: inline-block; margin-top: .6rem; }
+  .cartinha { position: static; width: 170px; margin: 1.2rem auto 0; }
   .theme-layer { z-index: -1; }  /* no celular não há lateral livre: os enfeites ficam atrás do conteúdo */
   .theme-layer svg { width: calc(var(--s, 46px) * .7); }
 }
@@ -258,8 +271,16 @@ body.comfort-mode *, body.comfort-mode *::before, body.comfort-mode *::after { a
       <a href="https://github.com/mochilicius/g2lingprog" target="_blank" rel="noopener noreferrer">📦 Repositório no GitHub</a>
       <a href="https://g2lingprogpoggi.streamlit.app/" target="_blank" rel="noopener noreferrer">📊 Dashboard interativo</a>
     </div>
-    <span class="theme-caption gotico" aria-hidden="true">🦇 kawaii gótico</span>
-    <span class="theme-caption rosa" aria-hidden="true">🍓 kawaii rosa</span>
+    <figure class="cartinha gotico">
+      <img src="https://www.sanrio.co.jp/wp-content/uploads/2022/06/gallery-kuromi1.png" loading="lazy" referrerpolicy="no-referrer"
+        alt="Kuromi, personagem da Sanrio, piscando o olho ao lado de um bichinho de pelúcia, em fundo preto com estrelas">
+      <figcaption><strong>Kuromi</strong> 🦇 tema da Giovanna<br>© Sanrio · imagem de sanrio.co.jp</figcaption>
+    </figure>
+    <figure class="cartinha rosa">
+      <img src="https://www.sanrio.co.jp/wp-content/uploads/2022/06/gallery-mymelody1.png" loading="lazy" referrerpolicy="no-referrer"
+        alt="My Melody, personagem da Sanrio, dançando balé numa moldura de rosas em fundo rosa">
+      <figcaption><strong>My Melody</strong> 🍓 tema da Juliana<br>© Sanrio · imagem de sanrio.co.jp</figcaption>
+    </figure>
   </header>
 
   <nav class="section-nav" aria-label="Navegação do artigo">
@@ -632,7 +653,8 @@ jupyter nbconvert --to notebook --execute --inplace notebooks/analise_explorator
 
 
   <footer>
-    Texto e figuras sob licença CC BY 4.0 · código sob licença MIT · dados sob ODbL 1.0 · 2026
+    Texto e figuras sob licença CC BY 4.0 · código sob licença MIT · dados sob ODbL 1.0 · 2026<br>
+    Kuromi e My Melody © Sanrio: imagens exibidas a partir do site oficial (sanrio.co.jp), sem fins comerciais; não fazem parte do repositório nem das licenças acima.
   </footer>
 </main>
 

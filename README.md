@@ -115,6 +115,7 @@ O `app.py` usa a mesma base tratada do artigo e permite explorar os dados por co
 - Código: [MIT](LICENSE).
 - Dados: os originais e a base tratada seguem a [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/), licença dos dados do BNDES.
 - Texto do artigo e figuras: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Kuromi e My Melody © Sanrio. As imagens que aparecem nos temas secretos do artigo (clicando no nome das autoras) são carregadas direto do site oficial (sanrio.co.jp), sem fins comerciais. Elas não estão neste repositório e não fazem parte das licenças acima.
 
 ## Como citar
 
