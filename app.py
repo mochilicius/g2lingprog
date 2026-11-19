@@ -195,7 +195,7 @@ st.markdown(f"""
   <h1>Despesas de viagem do BNDES (2009–2026)</h1>
   <p>Quem viaja, quem gasta e o efeito da pandemia de COVID-19.</p>
   <p><strong>Giovanna Poggi e Juliana Neto</strong> · Prof. Alexandre Neves Louzada<br>
-  Linguagem de Programação (Análise e Visualização de Dados com Python) · 2026.2</p>
+  Linguagem de Programação (Análise e Visualização de Dados com Python) · UniLaSalle-RJ · 2026.2</p>
 </div>
 """, unsafe_allow_html=True)
 

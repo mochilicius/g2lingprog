@@ -7,222 +7,271 @@
   <meta name="author" content="Giovanna Poggi; Juliana Neto">
   <meta name="keywords" content="dados abertos, BNDES, despesas de viagem, COVID-19, análise exploratória de dados, princípios FAIR">
   <title>Despesas de viagem do BNDES (2009–2026): quem viaja, quem gasta e o efeito da pandemia</title>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --primary: #1e3a8a;
-      --primary-light: #3b82f6;
-      --accent: #ea580c;
-      --text: #1f2937;
-      --text-muted: #4b5563;
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --border: #e2e8f0;
-      --code-bg: #f1f5f9;
-      --font-serif: "Merriweather", Georgia, serif;
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
+:root {
+  color-scheme: light;
+  --ink: #3a2547; --ink-soft: #6b5a78; --accent: #c2479a; --accent-2: #8b6fe0; --line: #ecdcf2;
+  --page-top: #f3ecff; --page-bottom: #fff0f8; --surface: rgba(255, 255, 255, .8);
+  --hero-a: #b9a8f7; --hero-b: #e3a6ee; --hero-c: #ffb8d9;
+  --stripe-1: #c8ecff; --stripe-2: #ffd1ec; --stripe-3: #e9b6f0;
+  --code-bg: #2c1f3d; --table-head: #f6e6f6;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; overflow-x: hidden; color: var(--ink);
+  background: linear-gradient(180deg, var(--page-top) 0%, var(--page-bottom) 100%);
+  font: 17px/1.72 "M PLUS Rounded 1c", system-ui, sans-serif;
+  transition: background .6s ease, color .4s ease;
+}
+main { width: min(100%, 1100px); margin: 0 auto; padding: 0 clamp(18px, 5vw, 60px) 5rem; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ---------- cabeçalho ---------- */
+header { position: relative; isolation: isolate; padding: clamp(60px, 8vw, 104px) 0 clamp(70px, 8vw, 96px); margin-bottom: 64px; }
+header::before {
+  content: ""; position: absolute; z-index: -1; inset: 0 calc(50% - 50vw);
+  background: linear-gradient(160deg, var(--hero-a) 0%, var(--hero-b) 45%, var(--hero-c) 100%);
+  transition: background .6s ease;
+}
+header::after {
+  content: ""; position: absolute; left: calc(50% - 50vw); width: 100vw; bottom: -30px; height: 30px;
+  background: linear-gradient(to bottom, var(--stripe-1) 0 34%, var(--stripe-2) 34% 68%, var(--stripe-3) 68% 100%);
+}
+.tag {
+  display: inline-flex; margin: 0 .45rem .55rem 0; padding: .28rem .8rem; border-radius: 999px;
+  border: 1px solid rgba(58, 37, 71, .22); background: rgba(255, 255, 255, .45); font-size: .8rem; font-weight: 700;
+}
+header h1 {
+  max-width: 21ch; margin: .45em 0 .4em; font-size: clamp(2.3rem, 5.6vw, 4.6rem); font-weight: 800;
+  line-height: 1.08; letter-spacing: -.035em; text-wrap: balance; color: #2e1b3d;
+}
+header p { margin: 1rem 0; font-size: 1.03rem; }
+header small { display: block; max-width: 80ch; color: #4a3558; font-size: .9rem; }
+.author-switch {
+  font: inherit; font-weight: 800; color: inherit; cursor: pointer; padding: .1em .45em; margin: 0 -.1em;
+  border: 2px dashed transparent; border-radius: 999px; background: rgba(255, 255, 255, .35);
+  transition: background .2s, border-color .2s, transform .2s;
+}
+.author-switch:hover { border-color: rgba(58, 37, 71, .45); transform: translateY(-1px); }
+.author-switch[aria-pressed="true"] { background: #fff; border-color: var(--accent); color: var(--accent); }
+.theme-hint { font-size: .9rem !important; margin-top: -.4rem !important; color: #4a3558; }
+.header-links { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.2rem; }
+.header-links a {
+  display: inline-block; padding: .55rem 1.1rem; border-radius: 999px; background: #fff; color: var(--accent);
+  font-weight: 800; text-decoration: none; box-shadow: 0 4px 0 rgba(58, 37, 71, .12);
+}
+.header-links a:hover { transform: translateY(1px); }
+.theme-caption {
+  position: absolute; right: 0; bottom: 18px; padding: .3rem .9rem; border-radius: 999px; background: rgba(255, 255, 255, .8);
+  font-size: .85rem; font-weight: 800; opacity: 0; transform: translateY(6px); transition: .4s;
+}
 
-    body {
-      font-family: var(--font-serif);
-      font-size: 1.05rem;
-      line-height: 1.8;
-      color: var(--text);
-      background-color: var(--bg);
-      padding: 2rem 1rem;
-    }
+/* ---------- navegação ---------- */
+.section-nav {
+  position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .4rem;
+  margin: 0 0 30px; padding: .55rem .8rem; border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(255, 255, 255, .88); backdrop-filter: blur(8px); box-shadow: 0 8px 30px rgba(90, 50, 110, .08);
+}
+.section-nav a { padding: .25rem .7rem; border-radius: 999px; color: var(--ink-soft); font-size: .9rem; font-weight: 700; text-decoration: none; }
+.section-nav a:hover { background: var(--table-head); color: var(--accent); }
+.comfort-button {
+  margin-left: auto; font: inherit; font-size: .85rem; font-weight: 800; cursor: pointer; color: var(--accent);
+  padding: .3rem .85rem; border: 2px solid var(--line); border-radius: 999px; background: #fff;
+}
+.comfort-button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: var(--surface);
-      padding: 3.5rem 4rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border);
-    }
+/* ---------- seções ---------- */
+section {
+  scroll-margin-top: 80px; margin: 0 0 28px; padding: clamp(22px, 4vw, 44px);
+  border: 1px solid rgba(120, 70, 150, .14); border-radius: 26px; background: var(--surface);
+  box-shadow: 0 16px 50px rgba(80, 40, 110, .06); transition: background .5s, border-color .5s;
+}
+section:first-of-type { border-top: 4px solid var(--accent-2); }
+h1, h2, h3 { line-height: 1.2; }
+h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); letter-spacing: -.03em; margin: 0 0 .8em; color: #4a2a5e; }
+h3.sub, h3 { font-size: 1.2rem; color: var(--accent); margin: 1.7em 0 .5em; }
+p { text-align: left; hyphens: auto; }
+a { color: var(--accent); text-underline-offset: .18em; }
+.keywords { color: var(--ink-soft); font-size: .95rem; }
+ul.rq, ul.plain { padding-left: 1.3rem; }
+li { margin: .4rem 0; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .86em; background: var(--table-head); padding: .1rem .35rem; border-radius: 6px; }
+pre { background: var(--code-bg); color: #f6e9ff; padding: 1.1rem 1.3rem; border-radius: 16px; overflow-x: auto; font-size: .85rem; line-height: 1.55; }
+pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+figure { margin: 2rem 0; }
+figure img { width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--line); background: #fff; display: block; }
+figure.narrow img { max-width: 520px; margin: 0 auto; }
+a.figure-open { display: block; position: relative; cursor: zoom-in; }
+a.figure-open::after {
+  content: "🔍 ampliar"; position: absolute; right: 10px; top: 10px; padding: .15rem .6rem; border-radius: 999px;
+  background: rgba(255, 255, 255, .9); color: var(--accent); font-size: .78rem; font-weight: 800; opacity: 0; transition: opacity .2s;
+}
+a.figure-open:hover::after, a.figure-open:focus-visible::after { opacity: 1; }
+figcaption, .table-caption { font-size: .88rem; color: var(--ink-soft); margin-top: .6rem; text-align: center; }
+.table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { padding: .5rem .7rem; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+th { white-space: normal; vertical-align: bottom; background: var(--table-head); color: #4a2a5e; }
+th:first-child, td:first-child { text-align: left; }
+tr.destaque td { color: var(--accent); font-weight: 800; }
+.fair-box { background: rgba(230, 250, 240, .75); border: 1px solid #bfe9d3; border-radius: 18px; padding: 1.4rem 1.7rem; }
+.fair-box h3 { margin-top: 0; color: #1f7a55; }
+.fair-box ul { list-style: none; padding: 0; }
+.references ol { padding-left: 1.3rem; font-size: .93rem; }
+.references li, p, li { overflow-wrap: anywhere; }  /* URLs longas não podem alargar a página no celular */
+footer { text-align: center; color: var(--ink-soft); font-size: .85rem; padding: 1rem 0 2rem; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 3px; }
 
-    header { border-bottom: 2px solid var(--border); padding-bottom: 2rem; margin-bottom: 2.5rem; }
+/* ---------- aparecer ao rolar ---------- */
+.reveals-enabled .reveal-target { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+.reveals-enabled .reveal-target.is-visible { opacity: 1; transform: none; }
 
-    h1.paper-title {
-      font-family: var(--font-sans);
-      font-size: 2.1rem;
-      font-weight: 700;
-      line-height: 1.3;
-      color: var(--primary);
-      margin-bottom: 1.2rem;
-    }
+/* ---------- ampliar figura ---------- */
+dialog.graph-dialog { width: min(96vw, 1200px); max-height: 92vh; padding: 0; border: 0; border-radius: 22px; box-shadow: 0 30px 80px rgba(40, 10, 60, .35); }
+dialog.graph-dialog::backdrop { background: rgba(40, 20, 60, .55); backdrop-filter: blur(3px); }
+.graph-toolbar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .7rem 1rem; border-bottom: 1px solid var(--line); background: #fff; }
+.graph-toolbar h2 { font-size: 1rem; margin: 0 auto 0 0; }
+.graph-toolbar button, .graph-toolbar a { font: inherit; font-size: .85rem; font-weight: 800; padding: .3rem .8rem; border-radius: 999px; border: 2px solid var(--line); background: #fff; color: var(--accent); cursor: pointer; text-decoration: none; }
+.graph-toolbar button:disabled { opacity: .4; cursor: default; }
+.graph-view { overflow: auto; max-height: calc(92vh - 60px); background: #fff; }
+.graph-view img { display: block; width: 100%; height: auto; margin: 0 auto; }
 
-    .meta-block { font-family: var(--font-sans); font-size: 0.95rem; color: var(--text-muted); margin-bottom: 0.8rem; }
-    .authors { font-weight: 600; color: var(--text); }
-    .affiliations { font-style: italic; }
+/* ---------- voltar ao topo ---------- */
+.back-to-top {
+  position: fixed; right: 18px; bottom: 18px; z-index: 30; width: 46px; height: 46px; border-radius: 50%;
+  border: 0; background: var(--accent); color: #fff; font-size: 1.3rem; cursor: pointer; box-shadow: 0 8px 24px rgba(80, 30, 100, .3);
+}
 
-    .badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
-    .badge {
-      font-family: var(--font-sans);
-      font-size: 0.78rem;
-      border-radius: 4px;
-      overflow: hidden;
-      display: inline-flex;
-      border: 1px solid var(--border);
-    }
-    .badge span { padding: 0.15rem 0.5rem; }
-    .badge span:first-child { background: #475569; color: #fff; }
-    .badge span:last-child { background: var(--code-bg); color: var(--primary); font-weight: 600; }
+/* ---------- enfeites dos temas secretos (desenhos originais em SVG) ---------- */
+/* na frente dos fundos (inclusive do cabeçalho), mas só nas laterais; pointer-events: none deixa clicar através */
+.theme-layer { position: fixed; inset: 0; z-index: 15; pointer-events: none; overflow: hidden; opacity: 0; transition: opacity .6s ease; }
+.theme-layer svg { position: absolute; width: var(--s, 46px); height: auto; animation: flutua var(--t, 7s) ease-in-out infinite; animation-delay: var(--d, 0s); }
+@keyframes flutua { 50% { transform: translateY(-16px) rotate(var(--r, 6deg)); } }
 
-    .repo-badge {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.4rem 0.8rem;
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      text-decoration: none;
-      color: var(--primary);
-      font-family: var(--font-sans);
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: background 0.2s ease;
-    }
-    .repo-badge:hover { background: #e2e8f0; }
+/* tema kawaii gótico (Giovanna) */
+body.tema-gotico {
+  --ink: #f2e6ff; --ink-soft: #cdb8e6; --accent: #ff7ac6; --accent-2: #b08cff; --line: #4a3266;
+  --page-top: #1c1129; --page-bottom: #2a1638; --surface: rgba(38, 22, 56, .86);
+  --hero-a: #2b173f; --hero-b: #4b2370; --hero-c: #8a3a8f;
+  --stripe-1: #1a0f25; --stripe-2: #ff7ac6; --stripe-3: #6c3fa0;
+  --code-bg: #120a1c; --table-head: #3a2252;
+}
+body.tema-gotico header h1, body.tema-gotico header p, body.tema-gotico header small, body.tema-gotico .theme-hint { color: #fbefff; }
+body.tema-gotico h2 { color: #f6dcff; }
+body.tema-gotico th { color: #fbe6ff; }
+body.tema-gotico figure img { border-color: #6c3fa0; }
+body.tema-gotico .section-nav, body.tema-gotico .graph-toolbar { background: rgba(30, 16, 44, .92); }
+body.tema-gotico .comfort-button, body.tema-gotico .header-links a, body.tema-gotico .graph-toolbar button,
+body.tema-gotico .graph-toolbar a { background: #2a1638; }
+body.tema-gotico .fair-box { background: rgba(40, 70, 60, .55); border-color: #3f7a63; }
+body.tema-gotico .fair-box h3 { color: #9ff0c9; }
+body.tema-gotico #enfeites-gotico { opacity: .9; }
+body.tema-gotico .tag { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .3); color: #fbefff; }
+body.tema-gotico .author-switch { background: rgba(255, 255, 255, .12); }
+body.tema-gotico .theme-caption { background: #2a1638; color: #ffb3e0; }
+body.tema-gotico .author-switch[aria-pressed="true"] { background: #2a1638; }
 
-    .abstract-box {
-      font-family: var(--font-sans);
-      background-color: var(--bg);
-      border-left: 4px solid var(--primary-light);
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 2.5rem;
-      border-radius: 0 4px 4px 0;
-    }
-    .abstract-box h3 {
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.5rem;
-      color: var(--primary);
-    }
-    .abstract-box p { font-size: 0.95rem; line-height: 1.6; }
-    .keywords { margin-top: 0.8rem; font-size: 0.9rem; color: var(--text-muted); }
+/* tema kawaii rosa (Juliana) */
+body.tema-rosa {
+  --ink: #5a2a45; --ink-soft: #8d5a76; --accent: #e8508f; --accent-2: #ff9cc2; --line: #ffd3e4;
+  --page-top: #fff2f7; --page-bottom: #ffe6f0; --surface: rgba(255, 255, 255, .86);
+  --hero-a: #ffd6e7; --hero-b: #ffb3d1; --hero-c: #ffe3ec;
+  --stripe-1: #fff; --stripe-2: #ff9cc2; --stripe-3: #ffd6e7;
+  --code-bg: #6a2e4f; --table-head: #ffe3ef;
+}
+body.tema-rosa #enfeites-rosa { opacity: .85; }
+body.tema-gotico .theme-caption.gotico, body.tema-rosa .theme-caption.rosa { opacity: 1; transform: none; }
 
-    nav.toc {
-      font-family: var(--font-sans);
-      background: #fdfefe;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 1.2rem 1.8rem;
-      margin-bottom: 2.5rem;
-    }
-    nav.toc h4 { font-size: 1rem; color: var(--primary); margin-bottom: 0.6rem; }
-    nav.toc ol { padding-left: 1.2rem; }
-    nav.toc li { margin: 0.3rem 0; }
-    nav.toc a { color: var(--text-muted); text-decoration: none; font-size: 0.92rem; }
-    nav.toc a:hover { color: var(--primary-light); text-decoration: underline; }
-
-    section { margin-bottom: 2.5rem; }
-
-    h2 {
-      font-family: var(--font-sans);
-      font-size: 1.45rem;
-      font-weight: 600;
-      color: var(--primary);
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 0.4rem;
-      margin-bottom: 1.2rem;
-    }
-    h3.sub { font-family: var(--font-sans); font-size: 1.12rem; color: var(--text); margin: 1.8rem 0 0.6rem; }
-
-    p { margin-bottom: 1.2rem; text-align: justify; hyphens: auto; }
-    ul.rq, ul.plain { margin: 0 0 1.2rem 1.4rem; }
-    ul.rq li, ul.plain li { margin-bottom: 0.5rem; }
-
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86em; background: var(--code-bg); padding: 0.1rem 0.3rem; border-radius: 3px; }
-    pre {
-      background: #0f172a;
-      color: #e2e8f0;
-      padding: 1.1rem 1.3rem;
-      border-radius: 6px;
-      overflow-x: auto;
-      margin-bottom: 1.4rem;
-      font-size: 0.85rem;
-      line-height: 1.55;
-    }
-    pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
-
-    figure { margin: 2rem 0; }
-    figure img { width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
-    figure.narrow img { max-width: 520px; display: block; margin: 0 auto; }
-    figcaption { font-family: var(--font-sans); font-size: 0.85rem; color: var(--text-muted); margin-top: 0.6rem; text-align: center; }
-
-    .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
-    table { border-collapse: collapse; width: 100%; font-family: var(--font-sans); font-size: 0.88rem; }
-    th, td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
-    th:first-child, td:first-child { text-align: left; }
-    th { background: var(--code-bg); color: var(--primary); font-weight: 600; white-space: normal; vertical-align: bottom; }
-    tr.destaque td { color: var(--accent); font-weight: 600; }
-    .table-caption { font-family: var(--font-sans); font-size: 0.85rem; color: var(--text-muted); margin-top: 0.4rem; }
-
-    .fair-box {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 6px;
-      padding: 1.5rem 1.8rem;
-      font-family: var(--font-sans);
-    }
-    .fair-box h3 { font-size: 1.1rem; color: #166534; margin-bottom: 0.8rem; }
-    .fair-box ul { list-style: none; }
-    .fair-box li { margin-bottom: 0.6rem; font-size: 0.93rem; }
-
-    .references ol { padding-left: 1.4rem; font-size: 0.92rem; }
-    .references li { margin-bottom: 0.7rem; text-align: left; }
-
-    footer { font-family: var(--font-sans); font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: 2.5rem; padding-top: 1rem; }
-    a { color: var(--primary-light); }
-
-    @media (max-width: 720px) {
-      body { padding: 0.5rem; font-size: 1rem; }
-      .container { padding: 1.6rem 1.1rem; }
-      h1.paper-title { font-size: 1.55rem; }
-      p { text-align: left; }
-      nav.toc { padding: 1rem 1.2rem; }
-    }
-  </style>
+/* modo conforto e movimento reduzido: sem animações nem enfeites */
+body.comfort-mode .theme-layer { display: none; }
+body.comfort-mode *, body.comfort-mode *::before, body.comfort-mode *::after { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+}
+@media (max-width: 700px) {
+  body { font-size: 16px; }
+  .section-nav { border-radius: 20px; }
+  .comfort-button { margin-left: 0; }
+  .theme-caption { position: static; display: inline-block; margin-top: .6rem; }
+  .theme-layer { z-index: -1; }  /* no celular não há lateral livre: os enfeites ficam atrás do conteúdo */
+  .theme-layer svg { width: calc(var(--s, 46px) * .7); }
+}
+</style>
 </head>
-
 <body>
-  <div class="container">
-    <header>
-      <h1 class="paper-title">Despesas de viagem do BNDES (2009–2026): quem viaja, quem gasta e o efeito da pandemia de COVID-19</h1>
 
-      <div class="meta-block authors">Giovanna Poggi, Juliana Neto</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="s-caveira" viewBox="0 0 64 64">
+    <path d="M32 6c-14 0-24 9-24 22 0 8 4 13 9 16v8c0 3 2 5 5 5h20c3 0 5-2 5-5v-8c5-3 9-8 9-16 0-13-10-22-24-22z" fill="#fff4fb" stroke="#3a1f4d" stroke-width="3"/>
+    <ellipse cx="23" cy="30" rx="6" ry="7" fill="#3a1f4d"/><ellipse cx="41" cy="30" rx="6" ry="7" fill="#3a1f4d"/>
+    <circle cx="25" cy="27.5" r="2" fill="#fff"/><circle cx="43" cy="27.5" r="2" fill="#fff"/>
+    <path d="M30 40l2-3 2 3z" fill="#3a1f4d"/><path d="M26 50v5M32 50v5M38 50v5" stroke="#3a1f4d" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="16" cy="38" rx="4" ry="2.5" fill="#ff9fcf" opacity=".8"/><ellipse cx="48" cy="38" rx="4" ry="2.5" fill="#ff9fcf" opacity=".8"/>
+    <path d="M44 8l-9 5 9 5zM56 8l-9 5 9 5z" fill="#ff7ac6" stroke="#3a1f4d" stroke-width="2" stroke-linejoin="round"/><circle cx="50" cy="13" r="3" fill="#3a1f4d"/>
+  </symbol>
+  <symbol id="s-morcego" viewBox="0 0 80 40">
+    <path d="M40 14c-3-5-8-6-8-6s1 5 3 7c-6-4-14-10-30-8 6 3 8 8 8 13 4-3 9-3 12 0 1-3 5-4 7-2 2 3 5 5 8 5s6-2 8-5c2-2 6-1 7 2 3-3 8-3 12 0 0-5 2-10 8-13-16-2-24 4-30 8 2-2 3-7 3-7s-5 1-8 6z" fill="#3a1f4d"/>
+    <circle cx="36" cy="18" r="1.8" fill="#ff7ac6"/><circle cx="44" cy="18" r="1.8" fill="#ff7ac6"/>
+  </symbol>
+  <symbol id="s-coracao" viewBox="0 0 40 36">
+    <path d="M20 34C6 24 2 17 2 11a9 9 0 0 1 18-3 9 9 0 0 1 18 3c0 6-4 13-18 23z" fill="currentColor"/>
+  </symbol>
+  <symbol id="s-coelho" viewBox="0 0 64 72">
+    <path d="M20 30C14 14 16 2 22 2s9 12 8 26M44 30c6-16 4-28-2-28s-9 12-8 26" fill="#fff" stroke="#e8508f" stroke-width="3"/>
+    <path d="M22 8c-2 6-1 14 2 20M42 8c2 6 1 14-2 20" stroke="#ffb3d1" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="32" cy="46" rx="24" ry="21" fill="#fff" stroke="#e8508f" stroke-width="3"/>
+    <ellipse cx="23" cy="45" rx="3.5" ry="4.5" fill="#5a2a45"/><ellipse cx="41" cy="45" rx="3.5" ry="4.5" fill="#5a2a45"/>
+    <ellipse cx="16" cy="53" rx="5" ry="3" fill="#ffb3d1"/><ellipse cx="48" cy="53" rx="5" ry="3" fill="#ffb3d1"/>
+    <path d="M29 52q3 3 6 0" stroke="#5a2a45" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="s-morango" viewBox="0 0 48 56">
+    <path d="M24 14C10 14 4 22 6 32c2 12 12 21 18 22 6-1 16-10 18-22 2-10-4-18-18-18z" fill="#ff6f9f" stroke="#c23d6c" stroke-width="2.5"/>
+    <path d="M24 16c-4-6-12-6-14-3 5 0 7 3 8 5-5-1-9 1-10 4 7-2 12-2 16-2 4 0 9 0 16 2-1-3-5-5-10-4 1-2 3-5 8-5-2-3-10-3-14 3z" fill="#7fd08a" stroke="#3f8f52" stroke-width="2" stroke-linejoin="round"/>
+    <g fill="#ffe9a8"><ellipse cx="17" cy="28" rx="1.5" ry="2"/><ellipse cx="27" cy="26" rx="1.5" ry="2"/><ellipse cx="33" cy="33" rx="1.5" ry="2"/><ellipse cx="20" cy="37" rx="1.5" ry="2"/><ellipse cx="29" cy="42" rx="1.5" ry="2"/></g>
+  </symbol>
+  <symbol id="s-flor" viewBox="0 0 48 48">
+    <g fill="#fff" stroke="#ff9cc2" stroke-width="2.5"><circle cx="24" cy="11" r="9"/><circle cx="37" cy="21" r="9"/><circle cx="32" cy="36" r="9"/><circle cx="16" cy="36" r="9"/><circle cx="11" cy="21" r="9"/></g>
+    <circle cx="24" cy="25" r="7" fill="#ffd36e" stroke="#e8a83a" stroke-width="2"/>
+  </symbol>
+</svg>
+<div class="theme-layer" id="enfeites-gotico" aria-hidden="true"><svg style="top:12%;left:3%;--s:58px;--t:8s" aria-hidden="true"><use href="#s-caveira"/></svg><svg style="top:22%;right:5%;--s:84px;--t:6s;--d:-2s;--r:-8deg" aria-hidden="true"><use href="#s-morcego"/></svg><svg style="color:#ff7ac6;top:46%;left:2%;--s:28px;--t:5s;--d:-1s" aria-hidden="true"><use href="#s-coracao"/></svg><svg style="bottom:14%;right:3%;--s:50px;--t:9s;--d:-4s;--r:-6deg" aria-hidden="true"><use href="#s-caveira"/></svg><svg style="bottom:30%;left:4%;--s:64px;--t:7s;--d:-3s" aria-hidden="true"><use href="#s-morcego"/></svg><svg style="color:#b08cff;top:70%;right:6%;--s:24px;--t:6s;--d:-2s" aria-hidden="true"><use href="#s-coracao"/></svg></div>
+<div class="theme-layer" id="enfeites-rosa" aria-hidden="true"><svg style="top:12%;left:3%;--s:58px;--t:8s" aria-hidden="true"><use href="#s-coelho"/></svg><svg style="top:24%;right:5%;--s:44px;--t:6s;--d:-2s;--r:-8deg" aria-hidden="true"><use href="#s-morango"/></svg><svg style="top:48%;left:2%;--s:38px;--t:7s;--d:-1s" aria-hidden="true"><use href="#s-flor"/></svg><svg style="color:#ff9cc2;top:68%;right:5%;--s:26px;--t:5s;--d:-3s" aria-hidden="true"><use href="#s-coracao"/></svg><svg style="bottom:10%;right:3%;--s:52px;--t:9s;--d:-4s;--r:-6deg" aria-hidden="true"><use href="#s-coelho"/></svg><svg style="bottom:28%;left:4%;--s:40px;--t:7s;--d:-3s" aria-hidden="true"><use href="#s-morango"/></svg></div>
 
-      <div class="meta-block affiliations">
-        Bacharelado em Sistemas de Informação, 6º período · semestre 2026.2<br>
-        Disciplina: Linguagem de Programação (Análise e Visualização de Dados com Python)<br>
-        Professor orientador: Alexandre Neves Louzada
-      </div>
+<main>
+  <header>
+    <span class="tag">Dados abertos · BNDES</span> <span class="tag">2009–2026</span> <span class="tag">Projeto G2</span>
+    <h1>Despesas de viagem do BNDES (2009–2026): quem viaja, quem gasta e o efeito da pandemia de COVID-19</h1>
+    <p class="authors"><strong><button type="button" class="author-switch" id="tema-giovanna" aria-pressed="false"
+      title="Clique para ativar o tema secreto da Giovanna">Giovanna Poggi</button> <span>e</span>
+      <button type="button" class="author-switch" id="tema-juliana" aria-pressed="false"
+      title="Clique para ativar o tema secreto da Juliana">Juliana Neto</button></strong><br>
+      Orientação do professor Alexandre Neves Louzada</p>
+    <p id="theme-hint" class="theme-hint" aria-live="polite">Dica: clique no nome de cada autora para descobrir um tema secreto ✨</p>
+    <small>Centro Universitário La Salle do Rio de Janeiro (UniLaSalle-RJ) · Bacharelado em Sistemas de Informação · 6º período · 2026.2<br>
+      Linguagem de Programação (Análise e Visualização de Dados com Python)<br>
+      Código MIT · dados ODbL 1.0 · texto CC BY 4.0 · Python 3.13 · FAIR</small>
+    <div class="header-links">
+      <a href="https://github.com/mochilicius/g2lingprog" target="_blank" rel="noopener noreferrer">📦 Repositório no GitHub</a>
+      <a href="https://g2lingprogpoggi.streamlit.app/" target="_blank" rel="noopener noreferrer">📊 Dashboard interativo</a>
+    </div>
+    <span class="theme-caption gotico" aria-hidden="true">🦇 kawaii gótico</span>
+    <span class="theme-caption rosa" aria-hidden="true">🍓 kawaii rosa</span>
+  </header>
 
-      <div class="badges" aria-label="Metadados do projeto">
-        <span class="badge"><span>Python</span><span>3.13</span></span>
-        <span class="badge"><span>código</span><span>MIT</span></span>
-        <span class="badge"><span>dados</span><span>ODbL 1.0</span></span>
-        <span class="badge"><span>texto</span><span>CC BY 4.0</span></span>
-        <span class="badge"><span>FAIR</span><span>compliant</span></span>
-      </div>
+  <nav class="section-nav" aria-label="Navegação do artigo">
+    <a href="#resumo">Resumo</a><a href="#intro">Introdução</a><a href="#metodologia">Metodologia</a>
+    <a href="#resultados">Resultados</a><a href="#conclusao">Conclusão</a><a href="#fair">Dados e FAIR</a><a href="#referencias">Referências</a>
+    <button type="button" class="comfort-button" id="comfort-toggle" aria-pressed="false" title="Desliga animações e enfeites">Modo conforto visual</button>
+  </nav>
 
-      <a href="https://github.com/mochilicius/g2lingprog" class="repo-badge" target="_blank" rel="noopener noreferrer">
-        📦 Ver repositório GitHub (código e dados)
-      </a>
-      <a href="https://g2lingprogpoggi.streamlit.app/" class="repo-badge" target="_blank" rel="noopener noreferrer">
-        📊 Abrir dashboard interativo
-      </a>
-    </header>
-
-    <div class="abstract-box">
-      <h3>Resumo</h3>
-      <p>
-        Viagens a serviço são um custo recorrente de bancos públicos e um indicador de como suas equipes trabalham. Este estudo
+  <section id="resumo">
+    <h2>Resumo</h2>
+    <p>
+      Viagens a serviço são um custo recorrente de bancos públicos e um indicador de como suas equipes trabalham. Este estudo
         analisa 144.930 viagens de 5.480 empregados e dirigentes do Banco Nacional de Desenvolvimento Econômico e Social (BNDES)
         realizadas entre 2009 e 2026, publicadas no portal de dados abertos do banco. Um pipeline em Python (pandas e numpy)
         trata dois formatos de registro que convivem no mesmo arquivo, agrega 303.868 trechos em viagens, corrige os valores
@@ -234,23 +283,9 @@
         2020. Congressos e treinamentos foram os motivos mais afetados, enquanto as reuniões nos escritórios regionais quase
         dobraram depois da crise. Em 2025 o volume ainda está 6% abaixo de 2019, mas cada viagem custa 38% mais em termos
         reais. Os resultados indicam que o banco não voltou ao padrão anterior: viaja-se menos e de forma mais cara.
-      </p>
-      <div class="keywords">
-        <strong>Palavras-chave:</strong> dados abertos; BNDES; despesas de viagem; COVID-19; análise exploratória de dados; princípios FAIR.
-      </div>
-    </div>
-
-    <nav class="toc">
-      <h4>Sumário</h4>
-      <ol>
-        <li><a href="#intro">Introdução</a></li>
-        <li><a href="#metodologia">Metodologia e pipeline de dados</a></li>
-        <li><a href="#resultados">Resultados e discussão</a></li>
-        <li><a href="#conclusao">Conclusão</a></li>
-        <li><a href="#fair">Disponibilidade dos dados e princípios FAIR</a></li>
-        <li><a href="#referencias">Referências</a></li>
-      </ol>
-    </nav>
+    </p>
+    <p class="keywords"><strong>Palavras-chave:</strong> dados abertos; BNDES; despesas de viagem; COVID-19; análise exploratória de dados; princípios FAIR.</p>
+  </section>
 
     <!-- 1. Introdução -->
     <section id="intro">
@@ -363,7 +398,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         uma parcela das equipes acompanha projetos fora da sede de forma recorrente, enquanto a maioria viaja ocasionalmente.
       </p>
       <figure class="narrow">
-        <a href="assets/fig_lorenz.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_lorenz.png" alt="Curva de Lorenz do gasto com viagens por pessoa, com Gini de 0,75 e os 10% que mais gastam concentrando 57% do gasto" loading="lazy"></a>
+        <a href="assets/fig_lorenz.png" class="figure-open" title="Ampliar a figura"><img src="assets/fig_lorenz.png" alt="Curva de Lorenz do gasto com viagens por pessoa, com Gini de 0,75 e os 10% que mais gastam concentrando 57% do gasto" loading="lazy"></a>
         <figcaption>Figura 1: Curva de Lorenz do gasto real com viagens por pessoa (2009–2026).</figcaption>
       </figure>
 
@@ -392,7 +427,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         <p class="table-caption">Tabela 1: Viagens e gasto real por profissão, 2009–2026 (viagens com profissão identificada).</p>
       </div>
       <figure>
-        <a href="assets/fig_profissao.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_profissao.png" alt="Três painéis de barras horizontais com viagens, viagens por pessoa e gasto real por profissão; engenheiros lideram nos três" loading="lazy"></a>
+        <a href="assets/fig_profissao.png" class="figure-open" title="Ampliar a figura"><img src="assets/fig_profissao.png" alt="Três painéis de barras horizontais com viagens, viagens por pessoa e gasto real por profissão; engenheiros lideram nos três" loading="lazy"></a>
         <figcaption>Figura 2: Viagens totais, viagens por pessoa e gasto real por profissão.</figcaption>
       </figure>
 
@@ -403,7 +438,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         (Figura 3). Nos dois períodos, os cargos de base respondem pela maior parte do volume, e os de direção, pelos maiores custos por viagem.
       </p>
       <figure>
-        <a href="assets/fig_cargo.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_cargo.png" alt="Dois painéis de barras com viagens e gasto por cargo em 2009–2019 e em 2020 em diante" loading="lazy"></a>
+        <a href="assets/fig_cargo.png" class="figure-open" title="Ampliar a figura"><img src="assets/fig_cargo.png" alt="Dois painéis de barras com viagens e gasto por cargo em 2009–2019 e em 2020 em diante" loading="lazy"></a>
         <figcaption>Figura 3: Viagens e gasto real por cargo, separados por formato de registro.</figcaption>
       </figure>
       <p>
@@ -438,7 +473,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         <p class="table-caption">Tabela 2: Custo de uma viagem e gasto de uma pessoa por cargo, em valores reais de out/2026 (cargos com 100 ou mais viagens; viagens de valor zero excluídas).</p>
       </div>
       <figure>
-        <a href="assets/fig_cargo_por_pessoa.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_cargo_por_pessoa.png" alt="Seis painéis de barras: custo de uma viagem, viagens por pessoa e gasto por pessoa para cada cargo, em 2009–2019 e em 2020 em diante, com rótulos em múltiplos do cargo de referência" loading="lazy"></a>
+        <a href="assets/fig_cargo_por_pessoa.png" class="figure-open" title="Ampliar a figura"><img src="assets/fig_cargo_por_pessoa.png" alt="Seis painéis de barras: custo de uma viagem, viagens por pessoa e gasto por pessoa para cada cargo, em 2009–2019 e em 2020 em diante, com rótulos em múltiplos do cargo de referência" loading="lazy"></a>
         <figcaption>Figura 4: Custo de uma viagem, viagens por pessoa e gasto de uma pessoa, por cargo; em laranja, o cargo de referência.</figcaption>
       </figure>
       <p>
@@ -457,7 +492,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         (164 viagens, contra 140 dos diretores), mas a viagem mediana de um diretor custa 59% a mais: R$&nbsp;4,8 mil contra R$&nbsp;3,0 mil.
       </p>
       <figure>
-        <a href="assets/fig_area.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_area.png" alt="Barras horizontais de viagens e gasto real por área da liderança, com superintendências em azul e diretorias em laranja" loading="lazy"></a>
+        <a href="assets/fig_area.png" class="figure-open" title="Ampliar a figura"><img src="assets/fig_area.png" alt="Barras horizontais de viagens e gasto real por área da liderança, com superintendências em azul e diretorias em laranja" loading="lazy"></a>
         <figcaption>Figura 5: Viagens e gasto real dos dirigentes atuais, por área (sigla do organograma).</figcaption>
       </figure>
       <p>
@@ -470,7 +505,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         quem lidera cada diretoria hoje, e não o gasto da diretoria ao longo do tempo.
       </p>
       <figure>
-        <a href="assets/fig_diretoria.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_diretoria.png" alt="Barras horizontais com o gasto real e as viagens por dirigente de cada diretoria do BNDES; DIR8 lidera o gasto e DIR9 tem o menor número de viagens por dirigente" loading="lazy"></a>
+        <a href="assets/fig_diretoria.png" class="figure-open" title="Ampliar a figura"><img src="assets/fig_diretoria.png" alt="Barras horizontais com o gasto real e as viagens por dirigente de cada diretoria do BNDES; DIR8 lidera o gasto e DIR9 tem o menor número de viagens por dirigente" loading="lazy"></a>
         <figcaption>Figura 6: Gasto real e viagens por dirigente, agrupados por diretoria (áreas mapeadas manualmente a partir do organograma).</figcaption>
       </figure>
 
@@ -487,7 +522,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         de 2019. Em 2021 a queda chega a 88%, e só 229 pessoas viajaram, contra 1.540 em 2019 (Tabela 3).
       </p>
       <figure>
-        <a href="assets/fig_serie_mensal.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_serie_mensal.png" alt="Série mensal de viagens de 2009 a 2026 com média móvel de 12 meses e faixa destacando a pandemia" loading="lazy"></a>
+        <a href="assets/fig_serie_mensal.png" class="figure-open" title="Ampliar a figura"><img src="assets/fig_serie_mensal.png" alt="Série mensal de viagens de 2009 a 2026 com média móvel de 12 meses e faixa destacando a pandemia" loading="lazy"></a>
         <figcaption>Figura 7: Viagens iniciadas por mês e média móvel de 12 meses; faixa laranja = pandemia (mar/2020 a dez/2021).</figcaption>
       </figure>
       <div class="table-wrap">
@@ -515,7 +550,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         atividades passou a ser feita a distância.
       </p>
       <figure>
-        <a href="assets/fig_motivos_pandemia.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_motivos_pandemia.png" alt="Gráfico de pontos comparando viagens por motivo em 2019, na média de 2020–21 e em 2023" loading="lazy"></a>
+        <a href="assets/fig_motivos_pandemia.png" class="figure-open" title="Ampliar a figura"><img src="assets/fig_motivos_pandemia.png" alt="Gráfico de pontos comparando viagens por motivo em 2019, na média de 2020–21 e em 2023" loading="lazy"></a>
         <figcaption>Figura 8: Viagens por motivo em 2019, na média anual de 2020–21 e em 2023 (dez maiores motivos de 2019).</figcaption>
       </figure>
       <p>
@@ -526,7 +561,7 @@ df.loc[legado, "numerodiarias"] = df.loc[legado, "numerodiarias"] / 100         
         quanto do aumento é encarecimento real e quanto é mudança contábil.
       </p>
       <figure>
-        <a href="assets/fig_gasto_anual.png" target="_blank" rel="noopener" title="Abrir a figura em tamanho real"><img src="assets/fig_gasto_anual.png" alt="Barras de gasto real anual de 2009 a 2025, com 2020 e 2021 em laranja, e linha do custo mediano por viagem" loading="lazy"></a>
+        <a href="assets/fig_gasto_anual.png" class="figure-open" title="Ampliar a figura"><img src="assets/fig_gasto_anual.png" alt="Barras de gasto real anual de 2009 a 2025, com 2020 e 2021 em laranja, e linha do custo mediano por viagem" loading="lazy"></a>
         <figcaption>Figura 9: Gasto real anual (barras) e custo mediano real por viagem (linha), 2009–2025.</figcaption>
       </figure>
     </section>
@@ -595,9 +630,112 @@ jupyter nbconvert --to notebook --execute --inplace notebooks/analise_explorator
       </ol>
     </section>
 
-    <footer>
-      Texto e figuras sob licença CC BY 4.0 · código sob licença MIT · dados sob ODbL 1.0 · 2026
-    </footer>
+
+  <footer>
+    Texto e figuras sob licença CC BY 4.0 · código sob licença MIT · dados sob ODbL 1.0 · 2026
+  </footer>
+</main>
+
+<dialog class="graph-dialog" id="graph-dialog" aria-labelledby="graph-dialog-title">
+  <div class="graph-toolbar">
+    <h2 id="graph-dialog-title">Figura</h2>
+    <button type="button" id="graph-zoom-out" aria-label="Diminuir zoom">−</button>
+    <span id="graph-zoom-label">100%</span>
+    <button type="button" id="graph-zoom-in" aria-label="Aumentar zoom">+</button>
+    <a id="graph-open-original" target="_blank" rel="noopener">Abrir original</a>
+    <button type="button" id="graph-dialog-close">Fechar ✕</button>
   </div>
+  <div class="graph-view" id="graph-view"><img id="graph-image" alt=""></div>
+</dialog>
+
+<button type="button" class="back-to-top" id="back-to-top" aria-label="Voltar ao topo" hidden>↑</button>
+
+<script>
+/* Temas secretos: clicar no nome de uma autora troca o visual da página. Clicar de novo volta ao padrão. */
+(() => {
+  const botoes = {gotico: document.getElementById("tema-giovanna"), rosa: document.getElementById("tema-juliana")};
+  const dica = document.getElementById("theme-hint");
+  const mensagens = {
+    gotico: "Tema secreto da Giovanna: kawaii gótico 🦇 Clique de novo no nome para voltar.",
+    rosa: "Tema secreto da Juliana: kawaii rosa 🍓 Clique de novo no nome para voltar.",
+  };
+  const textoPadrao = dica.textContent;
+  let atual = null;
+  const aplicar = (tema) => {
+    atual = atual === tema ? null : tema;
+    document.body.classList.toggle("tema-gotico", atual === "gotico");
+    document.body.classList.toggle("tema-rosa", atual === "rosa");
+    for (const [nome, botao] of Object.entries(botoes)) botao.setAttribute("aria-pressed", String(atual === nome));
+    dica.textContent = atual ? mensagens[atual] : textoPadrao;
+  };
+  for (const [nome, botao] of Object.entries(botoes)) botao.addEventListener("click", () => aplicar(nome));
+
+  /* modo conforto: desliga animações e enfeites */
+  const conforto = document.getElementById("comfort-toggle");
+  conforto.addEventListener("click", () => {
+    const ligado = document.body.classList.toggle("comfort-mode");
+    conforto.setAttribute("aria-pressed", String(ligado));
+  });
+})();
+
+/* Figuras: abrem ampliadas numa janela com zoom (sem JS, o link abre a imagem direto). */
+(() => {
+  const dialog = document.getElementById("graph-dialog");
+  if (!dialog || typeof dialog.showModal !== "function") return;
+  const image = document.getElementById("graph-image"), view = document.getElementById("graph-view");
+  const label = document.getElementById("graph-zoom-label"), original = document.getElementById("graph-open-original");
+  const title = document.getElementById("graph-dialog-title");
+  let zoom = 1, lastFocus = null;
+  const atualizar = () => {
+    image.style.width = Math.round(zoom * 100) + "%";
+    label.textContent = Math.round(zoom * 100) + "%";
+    document.getElementById("graph-zoom-out").disabled = zoom <= 1;
+    document.getElementById("graph-zoom-in").disabled = zoom >= 3;
+  };
+  document.querySelectorAll("a.figure-open").forEach((link) => {
+    link.addEventListener("click", (evento) => {
+      evento.preventDefault();
+      lastFocus = link; zoom = 1;
+      image.src = link.getAttribute("href");
+      image.alt = link.querySelector("img")?.alt || "Figura";
+      const legenda = link.closest("figure")?.querySelector("figcaption")?.textContent || "Figura";
+      title.textContent = legenda.split(":")[0];
+      original.href = image.src;
+      atualizar(); dialog.showModal(); view.scrollTo({left: 0, top: 0});
+      document.getElementById("graph-dialog-close").focus();
+    });
+  });
+  document.getElementById("graph-zoom-in").addEventListener("click", () => { zoom = Math.min(3, zoom + .5); atualizar(); });
+  document.getElementById("graph-zoom-out").addEventListener("click", () => { zoom = Math.max(1, zoom - .5); atualizar(); });
+  document.getElementById("graph-dialog-close").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", (evento) => { if (evento.target === dialog) dialog.close(); });
+  dialog.addEventListener("close", () => { image.removeAttribute("src"); if (lastFocus?.isConnected) lastFocus.focus(); });
+})();
+
+/* Seções aparecem suavemente ao rolar (desligado com movimento reduzido). */
+(() => {
+  const reduzido = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  if (!("IntersectionObserver" in window) || reduzido) return;
+  const observer = new IntersectionObserver((entradas) => {
+    entradas.forEach(({target, isIntersecting}) => {
+      if (isIntersecting) { target.classList.add("is-visible"); observer.unobserve(target); }
+    });
+  }, {threshold: .04, rootMargin: "0px 0px -5% 0px"});
+  document.querySelectorAll("main > section").forEach((secao) => { secao.classList.add("reveal-target"); observer.observe(secao); });
+  document.documentElement.classList.add("reveals-enabled");
+})();
+
+/* Voltar ao topo. */
+(() => {
+  const botao = document.getElementById("back-to-top");
+  const atualizar = () => { botao.hidden = window.scrollY < 360; };
+  window.addEventListener("scroll", atualizar, {passive: true});
+  atualizar();
+  botao.addEventListener("click", () => {
+    const semAnimacao = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches || document.body.classList.contains("comfort-mode");
+    window.scrollTo({top: 0, behavior: semAnimacao ? "auto" : "smooth"});
+  });
+})();
+</script>
 </body>
 </html>

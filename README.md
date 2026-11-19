@@ -7,6 +7,7 @@
 ![FAIR](https://img.shields.io/badge/FAIR-compliant-ea580c)
 
 **Autoras:** Giovanna Poggi e Juliana Neto
+**Instituição:** Centro Universitário La Salle do Rio de Janeiro (UniLaSalle-RJ)
 **Curso:** Bacharelado em Sistemas de Informação, 6º período · semestre 2026.2
 **Disciplina:** Linguagem de Programação (Análise e Visualização de Dados com Python)
 **Professor orientador:** Alexandre Neves Louzada
